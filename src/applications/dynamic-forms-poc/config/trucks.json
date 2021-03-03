@@ -1,0 +1,229 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "a4edd60a-f142-4547-8a9e-02a6bba76bcc",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://api.va.gov/services/pgd",
+        "code": "66a5960c-68ee-4689-88ae-4c7cccf7ca79",
+        "display": "VA GOV CLIPBOARD"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier",
+      "value": "vha_534"
+    }
+  ],
+  "title": "Fill out the form below - electric truck preferences",
+  "status": "active",
+  "publisher": "clipboard.gov.va",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "venue"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier",
+            "code": "534/12975"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "01",
+      "text": "Select a truck",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "01.01": { "valueString": "Tesla" } },
+        { "01.02": { "valueString": "Rivian" } },
+        { "01.03": { "valueString": "E-150" } }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "02",
+      "text": "Select the motor option for your Cybertruck",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "02.01": { "valueString": "Single motor rear wheel" } },
+        { "02.02": { "valueString": "Dual motor AWD" } },
+        { "02.03": { "valueString": "Tri motor AWD" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "01",
+          "operator": "=",
+          "answerString": "01.01"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "check-box",
+                "display": "Check-Box"
+              }
+            ],
+            "text": "A control where choices are listed with a box beside them. The box can be toggled to select or de-select a given choice. Multiple selections may be possible."
+          }
+        }
+      ],
+      "linkId": "03",
+      "text": "Select options",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "03.01": { "valueString": "Full self driving" } },
+        { "03.02": { "valueString": "Cyber ATV" } },
+        { "03.03": { "valueString": "Supercharging for life" } },
+        { "03.04": { "valueString": "Lunch with Elon" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "01",
+          "operator": "=",
+          "answerString": "01.01"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "04",
+      "text": "Select the model for your Rivian",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "04.01": { "valueString": "R1T" } },
+        { "04.02": { "valueString": "R1S" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "01",
+          "operator": "=",
+          "answerString": "01.02"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "05",
+      "text": "Select a package for your Rivian",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "05.01": { "valueString": "Adventure package" } },
+        { "05.02": { "valueString": "Explore package" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "01",
+          "operator": "=",
+          "answerString": "01.02"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "06",
+      "text": "Select a package for your R1S",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "06.01": { "valueString": "SUV Adventure package" } },
+        { "06.02": { "valueString": "SUV Explore package" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "01",
+          "operator": "=",
+          "answerString": "01.02"
+        }
+      ]
+    }
+  ]
+}

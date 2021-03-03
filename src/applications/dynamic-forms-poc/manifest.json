@@ -1,0 +1,6 @@
+{
+  "appName": "dynamic-forms-poc",
+  "entryFile": "./coronavirus-vaccination-entry.jsx",
+  "entryName": "dynamic-forms-poc",
+  "rootUrl": "/dynamic-forms-poc"
+}

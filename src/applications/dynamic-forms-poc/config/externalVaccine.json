@@ -1,0 +1,226 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "a4edd60a-f142-4547-8a9e-02a6bba76bcc",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://api.va.gov/services/pgd",
+        "code": "66a5960c-68ee-4689-88ae-4c7cccf7ca79",
+        "display": "VA GOV CLIPBOARD"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier",
+      "value": "vha_534"
+    }
+  ],
+  "title": "Fill out the form below - external vaccinations",
+  "status": "active",
+  "publisher": "clipboard.gov.va",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "venue"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier",
+            "code": "534/12975"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "100",
+      "text": "Did you receive a COVID-19 vaccine at a non-VA location?",
+      "type": "choice",
+      "required": true,
+      "answerOption": [
+        { "100.01": { "valueString": "Yes" } },
+        { "100.02": { "valueString": "No" } }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "101",
+      "text": "Which manufacturer supplied the vaccine you recieved?",
+      "type": "choice",
+      "required": true,
+      "answerOption": [
+        { "101.01": { "valueString": "Moderna" } },
+        { "101.02": { "valueString": "Pfizer" } },
+        { "101.03": { "valueString": "J&J" } }
+      ]
+    },
+    {
+      "linkId": "107",
+      "text": "Date of Vaccination",
+      "type": "date",
+      "required": true,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.03"
+        }
+      ]
+    },
+    {
+      "linkId": "108",
+      "text": "Place of vaccination",
+      "type": "string",
+      "required": true,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.03"
+        }
+      ]
+    },
+    {
+      "linkId": "102",
+      "text": "Date of first dose",
+      "type": "date",
+      "required": true,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.01"
+        },
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.02"
+        }
+      ]
+    },
+    {
+      "linkId": "103",
+      "text": "Where did you receive the first dose?",
+      "type": "string",
+      "required": true,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.01"
+        },
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.02"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "109",
+      "text": "Did you receive a second does of the COVID-19 vaccine?",
+      "type": "choice",
+      "required": true,
+      "answerOption": [
+        { "109.01": { "valueString": "Yes" } },
+        { "109.02": { "valueString": "No" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.01"
+        },
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.02"
+        }
+      ]
+    },
+    {
+      "linkId": "104",
+      "text": "Date of second dose (if received)",
+      "type": "date",
+      "required": false,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.01"
+        },
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.02"
+        }
+      ]
+    },
+    {
+      "linkId": "105",
+      "text": "Where did you receive the second dose?",
+      "type": "string",
+      "required": false,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.01"
+        },
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.02"
+        }
+      ]
+    }
+  ]
+}
