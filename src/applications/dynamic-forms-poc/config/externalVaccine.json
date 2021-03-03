@@ -18,7 +18,7 @@
   ],
   "title": "Fill out the form below - external vaccinations",
   "status": "active",
-  "publisher": "clipboard.gov.va",
+  "publisher": "Health care|health-care,Health forms|health-care/health-forms,External vaccinations|health-care/health-forms/external-vaccination",
   "useContext": [
     {
       "code": {

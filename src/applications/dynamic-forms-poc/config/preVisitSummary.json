@@ -18,7 +18,7 @@
   ],
   "title": "Fill out the form below - Pre-visit Summary",
   "status": "active",
-  "publisher": "clipboard.gov.va",
+  "publisher": "Health care|health-care,Health forms|health-care/health-forms,Pre-visit summary|health-care/health-forms/pre-visit-summary",
   "useContext": [
     {
       "code": {

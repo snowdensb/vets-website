@@ -49,6 +49,7 @@ export default function useSchemas(formId) {
         type: 'object',
         properties: {},
         questionnaireId: questionnaireData.id,
+        questionnairePublisher: questionnaireData.publisher,
         formTitle: questionnaireData.title,
         required: [],
       };
