@@ -2,9 +2,10 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { loadPrescriptions as loadPrescriptionsAction } from '~/applications/personalization/dashboard/actions/prescriptions';
+import { fetchFolder as fetchFolderAction } from '~/applications/personalization/dashboard/actions/messaging';
 import { fetchConfirmedFutureAppointments as fetchConfirmedFutureAppointmentsAction } from '~/applications/personalization/appointments/actions';
-
 import { isAuthenticatedWithSSOe } from '~/platform/user/authentication/selectors';
+import backendServices from '~/platform/user/profile/constants/backendServices';
 import { mhvUrl } from '~/platform/site-wide/mhv/utilities';
 import Prescriptions from './Prescriptions';
 import Appointments from './Appointments';
@@ -17,10 +18,17 @@ const HealthCare = ({
   authenticatedWithSSOe,
   canAccessRx,
   fetchConfirmedFutureAppointments,
+  fetchFolder,
+  canAccessMessaging,
 }) => {
   useEffect(
     () => {
       fetchConfirmedFutureAppointments();
+
+      if (canAccessMessaging) {
+        console.log('In here!');
+        fetchFolder(0, { page: 1, sort: '-sent_date' });
+      }
 
       if (canAccessRx) {
         loadPrescriptions({
@@ -29,7 +37,13 @@ const HealthCare = ({
         });
       }
     },
-    [canAccessRx, loadPrescriptions, fetchConfirmedFutureAppointments],
+    [
+      canAccessRx,
+      canAccessMessaging,
+      loadPrescriptions,
+      fetchConfirmedFutureAppointments,
+      fetchFolder,
+    ],
   );
 
   return (
@@ -98,10 +112,15 @@ const mapStateToProps = state => {
     prescriptions,
     canAccessRx,
     authenticatedWithSSOe: isAuthenticatedWithSSOe(state),
+    // canAccessMessaging: profileState.services.includes(
+    //   backendServices.MESSAGING,
+    // ),
+    canAccessMessaging: true,
   };
 };
 
 const mapDispatchToProps = {
+  fetchFolder: fetchFolderAction,
   loadPrescriptions: loadPrescriptionsAction,
   fetchConfirmedFutureAppointments: fetchConfirmedFutureAppointmentsAction,
 };
