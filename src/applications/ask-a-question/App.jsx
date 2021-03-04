@@ -59,7 +59,7 @@ function ActualApp() {
 
   return (
     <div className={'vads-l-grid-container'}>
-      <div className={'vads-l-row'}>
+      <div className={'vads-l-row'} style={{height: '200px'}}>
         <ReactWebChat
           activityMiddleware={activityMiddleware}
           directLine={directLine}
