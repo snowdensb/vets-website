@@ -328,43 +328,50 @@ const FacilitiesMap = props => {
     mapContainerElement.setAttribute('tabindex', 0);
 
     mapboxgl.accessToken = mapboxToken;
-    const mapInit = new mapboxgl.Map({
-      container: mapboxGlContainer,
-      style: 'mapbox://styles/mapbox/outdoors-v11',
-      center: [MapboxInit.centerInit.lng, MapboxInit.centerInit.lat],
-      zoom: MapboxInit.zoomInit,
-    });
 
-    const searchAreaControl = new SearchAreaControl(isMobile);
-    mapInit.addControl(searchAreaControl);
-    mapInit.addControl(
-      new mapboxgl.NavigationControl({
-        // Hide rotation control.
-        showCompass: false,
-      }),
-      'top-left',
-    );
-    setSearchAreaPosition();
-    const mapBoxLogo = document.querySelector(
-      'a.mapboxgl-ctrl-logo.mapboxgl-compact',
-    );
-    if (mapBoxLogo) mapBoxLogo.setAttribute('tabIndex', -1);
-    mapInit.on('load', () => {
-      // set up listeners on the zoom-in and zoom-out buttons:
-      document.querySelectorAll('.mapboxgl-ctrl > button').forEach(button =>
-        button.addEventListener('click', () => {
-          const screenreaderZoomElement = document.getElementById(
-            zoomMessageDivID,
-          );
-          screenreaderZoomElement.innerText = '';
-          props.mapMoved();
+    try {
+      const mapInit = new mapboxgl.Map({
+        container: mapboxGlContainer,
+        style: 'mapbox://styles/mapbox/outdoors-v11',
+        center: [MapboxInit.centerInit.lng, MapboxInit.centerInit.lat],
+        zoom: MapboxInit.zoomInit,
+      });
+
+      const searchAreaControl = new SearchAreaControl(isMobile);
+      mapInit.addControl(searchAreaControl);
+      mapInit.addControl(
+        new mapboxgl.NavigationControl({
+          // Hide rotation control.
+          showCompass: false,
         }),
+        'top-left',
       );
+      setSearchAreaPosition();
+      const mapBoxLogo = document.querySelector(
+        'a.mapboxgl-ctrl-logo.mapboxgl-compact',
+      );
+      if (mapBoxLogo) mapBoxLogo.setAttribute('tabIndex', -1);
+      mapInit.on('load', () => {
+        // set up listeners on the zoom-in and zoom-out buttons:
+        document.querySelectorAll('.mapboxgl-ctrl > button').forEach(button =>
+          button.addEventListener('click', () => {
+            const screenreaderZoomElement = document.getElementById(
+              zoomMessageDivID,
+            );
+            screenreaderZoomElement.innerText = '';
+            props.mapMoved();
+          }),
+        );
 
-      mapInit.resize();
-    });
+        mapInit.resize();
+      });
 
-    return mapInit;
+      return mapInit;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      return null;
+    }
   };
 
   /**
