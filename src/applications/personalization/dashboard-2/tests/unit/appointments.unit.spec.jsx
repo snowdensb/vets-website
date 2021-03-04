@@ -1,8 +1,3 @@
-// Ensure sorting is done correctly (startsAt wise)
-// Ensure we display the correct location for CC and VA
-// Ensure we show correct additional Info for video
-// Ensure we display correct timezone
-
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';

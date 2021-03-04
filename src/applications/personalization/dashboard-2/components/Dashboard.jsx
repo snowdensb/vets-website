@@ -137,7 +137,7 @@ const mapStateToProps = state => {
   const { isReady: hasLoadedScheduledDowntime } = state.scheduledDowntime;
   const isLOA3 = isLOA3Selector(state);
   const isLOA1 = isLOA1Selector(state);
-  const isVAPatient = true;
+  const isVAPatient = isVAPatientSelector(state);
   const hero = state.vaProfile?.hero;
   const hasLoadedMilitaryInformation = state.vaProfile?.militaryInformation;
   const hasLoadedFullName = !!hero;
