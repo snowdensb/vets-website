@@ -10,6 +10,7 @@ import {
   FETCH_CONFIRMED_FUTURE_APPOINTMENTS,
   FETCH_CONFIRMED_FUTURE_APPOINTMENTS_FAILED,
   FETCH_CONFIRMED_FUTURE_APPOINTMENTS_SUCCEEDED,
+  FUTURE_APPOINTMENTS_HIDDEN_SET,
   VIDEO_TYPES,
 } from '~/applications/personalization/dashboard-2/constants';
 import MOCK_FACILITIES from '~/applications/personalization/dashboard-2/constants/MOCK_FACILITIES_RESPONSE.json';
@@ -136,9 +137,16 @@ export function fetchConfirmedFutureAppointments() {
       (accumulator, appointment) => {
         const startDate = moment(appointment?.attributes?.startDate);
         const now = moment();
+        const appointmentStatus =
+          appointment?.attributes?.vdsAppointments?.[0]?.currentStatus;
 
         // Past appointments should be filtered out already on the api side, this is a safe guard.
         if (startDate.isBefore(now)) {
+          return accumulator;
+        }
+
+        // Hide cancelled or no-show appointments
+        if (FUTURE_APPOINTMENTS_HIDDEN_SET.has(appointmentStatus)) {
           return accumulator;
         }
 
