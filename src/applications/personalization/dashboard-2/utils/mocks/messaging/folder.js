@@ -1,4 +1,4 @@
-export const folders = {
+export const folder = {
   data: {
     id: '0',
     type: 'folders',
