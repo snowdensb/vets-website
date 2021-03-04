@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { loadPrescriptions as loadPrescriptionsAction } from '~/applications/personalization/dashboard/actions/prescriptions';
 import { getMedicalCenterNameByID } from '~/platform/utilities/medical-centers/medical-centers';
 import { GeneralCernerWidget } from '~/applications/personalization/dashboard/components/cerner-widgets';
+import { fetchConfirmedFutureAppointments as fetchConfirmedFutureAppointmentsAction } from '~/applications/personalization/appointments/actions';
+
 import { isAuthenticatedWithSSOe } from '~/platform/user/authentication/selectors';
 import {
   selectCernerAppointmentsFacilities,
@@ -14,18 +16,22 @@ import {
 } from '~/platform/user/selectors';
 import { mhvUrl } from '~/platform/site-wide/mhv/utilities';
 import Prescriptions from './Prescriptions';
+import Appointments from './Appointments';
 import HealthCareCard from './HealthCareCard';
 
 const HealthCare = ({
   loadPrescriptions,
   prescriptions,
+  appointments,
   authenticatedWithSSOe,
   canAccessRx,
+  fetchConfirmedFutureAppointments,
   isCernerPatient,
   facilityNames,
 }) => {
   useEffect(
     () => {
+      fetchConfirmedFutureAppointments();
       if (canAccessRx && !isCernerPatient) {
         loadPrescriptions({
           active: true,
@@ -52,8 +58,12 @@ const HealthCare = ({
       <div className="vads-u-display--flex vads-u-flex-wrap--wrap">
         {/* Messages */}
         <HealthCareCard type="messages" />
+
         {/* Appointments */}
-        <HealthCareCard type="appointments" />
+        <Appointments
+          appointments={appointments}
+          authenticatedWithSSOe={authenticatedWithSSOe}
+        />
 
         {/* Prescriptions */}
         {canAccessRx && (
@@ -128,6 +138,7 @@ const mapStateToProps = state => {
   ];
 
   return {
+    appointments: state?.health?.appointmentsReducer?.appointments,
     isCernerPatient: selectIsCernerPatient(state),
     facilityNames,
     prescriptions,
@@ -138,6 +149,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
   loadPrescriptions: loadPrescriptionsAction,
+  fetchConfirmedFutureAppointments: fetchConfirmedFutureAppointmentsAction,
 };
 
 HealthCare.propTypes = {
