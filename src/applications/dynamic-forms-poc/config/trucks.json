@@ -18,7 +18,7 @@
   ],
   "title": "Fill out the form below - electric truck preferences",
   "status": "active",
-  "publisher": "Automotive|autos,Electric vehicles|autos/electric,Trucks|autos/electric/trucks",
+  "publisher": "Home|,Automotive|autos,Electric vehicles|autos/electric,Trucks|autos/electric/trucks",
   "useContext": [
     {
       "code": {

@@ -18,7 +18,7 @@
   ],
   "title": "Fill out the form below - Pre-visit Summary",
   "status": "active",
-  "publisher": "Health care|health-care,Health forms|health-care/health-forms,Pre-visit summary|health-care/health-forms/pre-visit-summary",
+  "publisher": "Home|,Health care|health-care,Health forms|health-care/health-forms,Pre-visit summary|health-care/health-forms/pre-visit-summary",
   "useContext": [
     {
       "code": {
@@ -37,7 +37,7 @@
   ],
   "item": [
     {
-      "linkId": "01",
+      "linkId": "xyz",
       "text": "What is the reason for this appointment? | <br><strong>Note:</strong> this is another part of the text",
       "type": "string",
       "required": true

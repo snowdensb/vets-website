@@ -32,18 +32,6 @@ export default function useSchemas(formId) {
         questionnaireData = externalVaccine;
     }
 
-    // const FormatedString = props => {
-    //   if (spanRef.current) {
-    //     spanRef.current.innerHTML = props.textString;
-    //   }
-    //   return <span ref={spanRef} />;
-    //   // <>
-    //   //   <span>
-    //   //     <strong>{props.textString}</strong>
-    //   //   </span>
-    //   // </>
-    // };
-
     function createSchemas() {
       const schemaObject = {
         type: 'object',
@@ -153,7 +141,6 @@ export default function useSchemas(formId) {
                   }}
                 />
               ),
-              // FormatedString({ textString: description }),
             };
           }
           schemaObject.properties[itemKey] = {
