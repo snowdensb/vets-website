@@ -53,7 +53,7 @@
         }
       ],
       "linkId": "100",
-      "text": "Did you receive a COVID-19 vaccine at a non-VA location?",
+      "text": "Did you receive a COVID-19 vaccine at a non-VA location? | <strong>Note: </strong> this is a formatted description",
       "type": "choice",
       "required": true,
       "answerOption": [
@@ -80,38 +80,20 @@
       "linkId": "101",
       "text": "Which manufacturer supplied the vaccine you recieved?",
       "type": "choice",
-      "required": true,
+      "required": false,
       "answerOption": [
         { "101.01": { "valueString": "Moderna" } },
         { "101.02": { "valueString": "Pfizer" } },
         { "101.03": { "valueString": "J&J" } }
-      ]
-    },
-    {
-      "linkId": "107",
-      "text": "Date of Vaccination",
-      "type": "date",
-      "required": true,
+      ],
       "enableWhen": [
         {
-          "question": "101",
+          "question": "100",
           "operator": "=",
-          "answerString": "101.03"
+          "answerString": "100.01"
         }
-      ]
-    },
-    {
-      "linkId": "108",
-      "text": "Place of vaccination",
-      "type": "string",
-      "required": true,
-      "enableWhen": [
-        {
-          "question": "101",
-          "operator": "=",
-          "answerString": "101.03"
-        }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "linkId": "102",
@@ -129,7 +111,8 @@
           "operator": "=",
           "answerString": "101.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "linkId": "103",
@@ -147,7 +130,8 @@
           "operator": "=",
           "answerString": "101.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "extension": [
@@ -168,7 +152,7 @@
       "linkId": "109",
       "text": "Did you receive a second does of the COVID-19 vaccine?",
       "type": "choice",
-      "required": true,
+      "required": false,
       "answerOption": [
         { "109.01": { "valueString": "Yes" } },
         { "109.02": { "valueString": "No" } }
@@ -184,7 +168,8 @@
           "operator": "=",
           "answerString": "101.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "linkId": "104",
@@ -202,7 +187,8 @@
           "operator": "=",
           "answerString": "101.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "linkId": "105",
@@ -220,7 +206,36 @@
           "operator": "=",
           "answerString": "101.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "linkId": "108",
+      "text": "Place of JJ vaccination",
+      "type": "string",
+      "required": false,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.03"
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "linkId": "107",
+      "text": "Date of J&J Vaccination",
+      "type": "date",
+      "required": false,
+      "enableWhen": [
+        {
+          "question": "101",
+          "operator": "=",
+          "answerString": "101.03"
+        }
+      ],
+      "enableBehavior": "any"
     }
   ]
 }

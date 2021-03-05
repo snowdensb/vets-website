@@ -37,8 +37,8 @@
   ],
   "item": [
     {
-      "linkId": "xyz",
-      "text": "What is the reason for this appointment? | <br><strong>Note:</strong> this is another part of the text",
+      "linkId": "01",
+      "text": "What is the reason for this appointment? | <strong>Note:</strong> this is another part of the text",
       "type": "string",
       "required": true
     },

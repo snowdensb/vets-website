@@ -93,7 +93,8 @@
           "operator": "=",
           "answerString": "01.01"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "extension": [
@@ -127,7 +128,37 @@
           "operator": "=",
           "answerString": "01.01"
         }
-      ]
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "linkId": "1107",
+      "text": "Why are you selecting ALL the options? | <strong>Note:</strong> Selecting all options is highly recommended",
+      "type": "string",
+      "required": false,
+      "enableWhen": [
+        {
+          "question": "03",
+          "operator": "=",
+          "answerString": "03.01"
+        },
+        {
+          "question": "03",
+          "operator": "=",
+          "answerString": "03.02"
+        },
+        {
+          "question": "03",
+          "operator": "=",
+          "answerString": "03.03"
+        },
+        {
+          "question": "03",
+          "operator": "=",
+          "answerString": "03.04"
+        }
+      ],
+      "enableBehavior": "all"
     },
     {
       "extension": [
@@ -159,7 +190,8 @@
           "operator": "=",
           "answerString": "01.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "extension": [
@@ -191,7 +223,8 @@
           "operator": "=",
           "answerString": "01.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     },
     {
       "extension": [
@@ -223,7 +256,8 @@
           "operator": "=",
           "answerString": "01.02"
         }
-      ]
+      ],
+      "enableBehavior": "any"
     }
   ]
 }

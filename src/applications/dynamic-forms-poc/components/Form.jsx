@@ -83,6 +83,9 @@ function Form({ formState, updateFormData, router }) {
         <h1 id="va-dynamic-form-heading" className="no-outline">
           {formState?.formSchema?.formTitle}
         </h1>
+        {formState?.formSchema?.description ? (
+          <p>{formState?.formSchema?.description}</p>
+        ) : null}
 
         {formState ? (
           <SchemaForm

@@ -1,0 +1,753 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "a4edd60a-f142-4547-8a9e-02a6bba76bcc",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://api.va.gov/services/pgd",
+        "code": "66a5960c-68ee-4689-88ae-4c7cccf7ca79",
+        "display": "VA GOV CLIPBOARD"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier",
+      "value": "vha_534"
+    }
+  ],
+  "title": "PCL-5",
+  "description": "<strong>Instructions:</strong> Below is a list of problems that people sometimes have in response to a very stressful experience. Please read each problem carefully and then circle one of the numbers to the right to indicate how much you have been bothered by that problem in the past month.",
+  "status": "active",
+  "publisher": "Home|,Health care|health-care,Health forms|health-care/health-forms,PCL-5|health-care/health-forms/pcl-5",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "venue"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier",
+            "code": "534/12975"
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "01",
+      "text": "Repeated, disturbing, and unwanted memories of the stressful experience? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "01.01": { "valueString": "Extremely" } },
+        { "01.02": { "valueString": "Quite a bit" } },
+        { "01.03": { "valueString": "Moderately" } },
+        { "01.04": { "valueString": "A little bit" } },
+        { "01.05": { "valueString": "Not at all" } }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "02",
+      "text": "Repeated, disturbing dreams of the stressful experience?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "02.01": { "valueString": "Extremely" } },
+        { "02.02": { "valueString": "Quite a bit" } },
+        { "02.03": { "valueString": "Moderately" } },
+        { "02.04": { "valueString": "A little bit" } },
+        { "02.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "01",
+          "operator": "exists",
+          "answerString": "01.01"
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "03",
+      "text": "Suddenly feeling or acting as if the stressful experience were actually happening again (as if you were actually back there reliving it)?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "03.01": { "valueString": "Extremely" } },
+        { "03.02": { "valueString": "Quite a bit" } },
+        { "03.03": { "valueString": "Moderately" } },
+        { "03.04": { "valueString": "A little bit" } },
+        { "03.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "02",
+          "operator": "exists",
+          "answerString": "02.01"
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "04",
+      "text": "Feeling very upset when something reminded you of the stressful experience?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "04.01": { "valueString": "Extremely" } },
+        { "04.02": { "valueString": "Quite a bit" } },
+        { "04.03": { "valueString": "Moderately" } },
+        { "04.04": { "valueString": "A little bit" } },
+        { "04.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "03",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "05",
+      "text": "Having strong physical reactions when something reminded you of the stressful experience (for example, heart pounding, trouble breathing, sweating)?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "05.01": { "valueString": "Extremely" } },
+        { "05.02": { "valueString": "Quite a bit" } },
+        { "05.03": { "valueString": "Moderately" } },
+        { "05.04": { "valueString": "A little bit" } },
+        { "05.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "04",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "06",
+      "text": "Avoiding memories, thoughts, or feelings related to the stressful experience? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "06.01": { "valueString": "Extremely" } },
+        { "06.02": { "valueString": "Quite a bit" } },
+        { "06.03": { "valueString": "Moderately" } },
+        { "06.04": { "valueString": "A little bit" } },
+        { "06.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "05",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "07",
+      "text": "Avoiding external reminders of the stressful experience (for example, people, places, conversations, activities, objects, or situations)? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "07.01": { "valueString": "Extremely" } },
+        { "07.02": { "valueString": "Quite a bit" } },
+        { "07.03": { "valueString": "Moderately" } },
+        { "07.04": { "valueString": "A little bit" } },
+        { "07.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "06",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "08",
+      "text": "Trouble remembering important parts of the stressful experience? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "08.01": { "valueString": "Extremely" } },
+        { "08.02": { "valueString": "Quite a bit" } },
+        { "08.03": { "valueString": "Moderately" } },
+        { "08.04": { "valueString": "A little bit" } },
+        { "08.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "07",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "09",
+      "text": "Having strong negative beliefs about yourself, other people, or the world (for example, having thoughts such as: I am bad, there is something seriously wrong with me, no one can be trusted, the world is completely dangerous)? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "09.01": { "valueString": "Extremely" } },
+        { "09.02": { "valueString": "Quite a bit" } },
+        { "09.03": { "valueString": "Moderately" } },
+        { "09.04": { "valueString": "A little bit" } },
+        { "09.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "08",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "10",
+      "text": "Blaming yourself or someone else for the stressful experience or what happened after it? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "10.01": { "valueString": "Extremely" } },
+        { "10.02": { "valueString": "Quite a bit" } },
+        { "10.03": { "valueString": "Moderately" } },
+        { "10.04": { "valueString": "A little bit" } },
+        { "10.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "09",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "11",
+      "text": "Having strong negative feelings such as fear, horror, anger, guilt, or shame?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "11.01": { "valueString": "Extremely" } },
+        { "11.02": { "valueString": "Quite a bit" } },
+        { "11.03": { "valueString": "Moderately" } },
+        { "11.04": { "valueString": "A little bit" } },
+        { "11.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "10",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "12",
+      "text": "Loss of interest in activities that you used to enjoy? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "12.01": { "valueString": "Extremely" } },
+        { "12.02": { "valueString": "Quite a bit" } },
+        { "12.03": { "valueString": "Moderately" } },
+        { "12.04": { "valueString": "A little bit" } },
+        { "12.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "11",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "13",
+      "text": "Feeling distant or cut off from other people?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "13.01": { "valueString": "Extremely" } },
+        { "13.02": { "valueString": "Quite a bit" } },
+        { "13.03": { "valueString": "Moderately" } },
+        { "13.04": { "valueString": "A little bit" } },
+        { "13.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "12",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "14",
+      "text": "Trouble experiencing positive feelings (for example, being unable to feel happiness or have loving feelings for people close to you)?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "14.01": { "valueString": "Extremely" } },
+        { "14.02": { "valueString": "Quite a bit" } },
+        { "14.03": { "valueString": "Moderately" } },
+        { "14.04": { "valueString": "A little bit" } },
+        { "14.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "13",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "15",
+      "text": "Irritable behavior, angry outbursts, or acting aggressively?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "15.01": { "valueString": "Extremely" } },
+        { "15.02": { "valueString": "Quite a bit" } },
+        { "15.03": { "valueString": "Moderately" } },
+        { "15.04": { "valueString": "A little bit" } },
+        { "15.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "14",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "16",
+      "text": "Taking too many risks or doing things that could cause you harm? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "16.01": { "valueString": "Extremely" } },
+        { "16.02": { "valueString": "Quite a bit" } },
+        { "16.03": { "valueString": "Moderately" } },
+        { "16.04": { "valueString": "A little bit" } },
+        { "16.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "15",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "17",
+      "text": "Being “superalert” or watchful or on guard? ",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "17.01": { "valueString": "Extremely" } },
+        { "17.02": { "valueString": "Quite a bit" } },
+        { "17.03": { "valueString": "Moderately" } },
+        { "17.04": { "valueString": "A little bit" } },
+        { "17.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "16",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "18",
+      "text": "Feeling jumpy or easily startled?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "18.01": { "valueString": "Extremely" } },
+        { "18.02": { "valueString": "Quite a bit" } },
+        { "18.03": { "valueString": "Moderately" } },
+        { "18.04": { "valueString": "A little bit" } },
+        { "18.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "17",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "19",
+      "text": "Having difficulty concentrating?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "19.01": { "valueString": "Extremely" } },
+        { "19.02": { "valueString": "Quite a bit" } },
+        { "19.03": { "valueString": "Moderately" } },
+        { "19.04": { "valueString": "A little bit" } },
+        { "19.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "18",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "radio-button",
+                "display": "Radio Button"
+              }
+            ],
+            "text": "A control where choices are listed with a button beside them. The button can be toggled to select or de-select a given choice. Selecting one item deselects all others."
+          }
+        }
+      ],
+      "linkId": "20",
+      "text": "Trouble falling or staying asleep?",
+      "type": "choice",
+      "required": false,
+      "answerOption": [
+        { "20.01": { "valueString": "Extremely" } },
+        { "20.02": { "valueString": "Quite a bit" } },
+        { "20.03": { "valueString": "Moderately" } },
+        { "20.04": { "valueString": "A little bit" } },
+        { "20.05": { "valueString": "Not at all" } }
+      ],
+      "enableWhen": [
+        {
+          "question": "19",
+          "operator": "exists",
+          "answerString": ""
+        }
+      ],
+      "enableBehavior": "any"
+    }
+  ]
+}

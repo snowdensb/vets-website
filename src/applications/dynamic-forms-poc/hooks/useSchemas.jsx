@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import externalVaccine from '../config/externalVaccine.json';
 import trucks from '../config/trucks.json';
 import preVisitSummary from '../config/preVisitSummary.json';
+import pcl5 from '../config/pcl5.json';
 
 import currentOrPastDateUI from 'platform/forms-system/src/js/definitions/currentOrPastDate';
 import { R4 } from '@ahryman40k/ts-fhir-types';
@@ -28,6 +29,10 @@ export default function useSchemas(formId) {
         questionnaireData = preVisitSummary;
         break;
 
+      case 'pcl5':
+        questionnaireData = pcl5;
+        break;
+
       default:
         questionnaireData = externalVaccine;
     }
@@ -39,6 +44,14 @@ export default function useSchemas(formId) {
         questionnaireId: questionnaireData.id,
         questionnairePublisher: questionnaireData.publisher,
         formTitle: questionnaireData.title,
+        description: (
+          <span
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{
+              __html: questionnaireData.description,
+            }}
+          />
+        ),
         required: [],
       };
 
@@ -54,6 +67,26 @@ export default function useSchemas(formId) {
 
         uiSchemaObject[itemKey] = { 'ui:options': {} };
         order.push(itemKey);
+
+        // there is no FHIR defined description for each question, so delimting the title with | to include title|description
+        const [title, description] = element.text.split('|');
+        uiSchemaObject[itemKey] = {
+          'ui:title': title,
+        };
+        if (description !== undefined) {
+          uiSchemaObject[itemKey] = {
+            ...uiSchemaObject[itemKey],
+            'ui:description': () => (
+              <span
+                // surely there is a better way??
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{
+                  __html: description,
+                }}
+              />
+            ),
+          };
+        }
 
         if (
           element.type === R4.Questionnaire_ItemTypeKind._date ||
@@ -85,7 +118,7 @@ export default function useSchemas(formId) {
                 ? 'yesNo'
                 : 'radio';
             uiSchemaObject[itemKey] = {
-              'ui:title': element.text,
+              ...uiSchemaObject[itemKey],
               'ui:widget': widgetType,
               'ui:options': {
                 labels,
@@ -103,11 +136,6 @@ export default function useSchemas(formId) {
               };
             }
           } else {
-            // Select Group
-            uiSchemaObject[itemKey] = {
-              'ui:title': element.text,
-            };
-
             Object.keys(labels).forEach(key => {
               uiSchemaObject[itemKey] = {
                 ...uiSchemaObject[itemKey],
@@ -124,48 +152,47 @@ export default function useSchemas(formId) {
             };
           }
         } else {
-          const [title, description] = element.text.split('|');
-
-          uiSchemaObject[itemKey] = {
-            'ui:title': title,
-          };
-          if (description !== undefined) {
-            uiSchemaObject[itemKey] = {
-              ...uiSchemaObject[itemKey],
-              'ui:description': () => (
-                <span
-                  // surely there is a better way??
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{
-                    __html: description,
-                  }}
-                />
-              ),
-            };
-          }
           schemaObject.properties[itemKey] = {
             type: element.type,
           };
         }
         if (element.enableWhen !== undefined) {
-          uiSchemaObject[itemKey]['ui:options'] = {
-            ...uiSchemaObject[itemKey]['ui:options'],
-            expandUnder: `va-${element.enableWhen[0].question}`,
-          };
-          const conditionKey = `va-${element.enableWhen[0].question}`;
+          // No support for mixing operators in multiple enableWhen clauses; must be all 'exists' or '='
+          // operator = 'exists' means implement hideIf
+          // operator = '=' means implemement a specific equality
 
-          if (schemaObject.properties[conditionKey].type !== 'boolean') {
+          const conditionKey = `va-${element.enableWhen[0].question}`;
+          const operator = `${element.enableWhen[0].operator}`;
+
+          if (operator === 'exists') {
             uiSchemaObject[itemKey]['ui:options'] = {
               ...uiSchemaObject[itemKey]['ui:options'],
-              expandUnderCondition: formData => {
-                // multiple expand under conditions are treated as an OR
-                // for future enhancement, FHIR Questionnaire supports specifying AND or OR:
-                // https://www.hl7.org/fhir/questionnaire-definitions.html#Questionnaire.item.enableBehavior
-                return element.enableWhen.some(
-                  elem => elem.answerString === formData,
-                );
+              hideIf: formData => {
+                return formData[conditionKey] === undefined;
               },
             };
+          } else {
+            uiSchemaObject[itemKey]['ui:options'] = {
+              ...uiSchemaObject[itemKey]['ui:options'],
+              expandUnder: conditionKey,
+            };
+            if (schemaObject.properties[conditionKey].type !== 'boolean') {
+              uiSchemaObject[itemKey]['ui:options'] = {
+                ...uiSchemaObject[itemKey]['ui:options'],
+                expandUnderCondition: formData => {
+                  if (formData === undefined) return false;
+                  if (element.enableBehavior === 'any') {
+                    return element.enableWhen.some(
+                      elem => elem.answerString === formData,
+                    );
+                  } else {
+                    return Object.values(formData).every(
+                      value => value === true,
+                    );
+                  }
+                },
+              };
+            }
           }
         }
       });
