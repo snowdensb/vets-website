@@ -241,7 +241,7 @@ describe('ApplyForBenefits component', () => {
             );
           }),
         ).to.be.false;
-        // make sure the loading spinner is shown
+        // make sure the loading spinner is not shown
         expect(
           view.queryByRole('progressbar', {
             value: /benefits you might be interested in/i,
