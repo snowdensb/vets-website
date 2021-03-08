@@ -1,0 +1,63 @@
+From 40ce27a3598257591acb24d14d8c53fab3c29390 Mon Sep 17 00:00:00 2001
+From: Kelson Adams <kelsonic@users.noreply.github.com>
+Date: Fri, 5 Mar 2021 12:15:40 -0700
+Subject: [PATCH] Kelsonic fix omitdebug (#16271)
+
+* Add omitdebug default false in preview script
+
+* Use bang operator instead of direct comparison to false
+---
+ .github/CODEOWNERS                    |  1 +
+ script/preview.js                     |  1 +
+ src/site/includes/debug.drupal.liquid | 10 +++++-----
+ 3 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/.github/CODEOWNERS b/.github/CODEOWNERS
+index 1302cf3ee4..21dfbed1be 100644
+--- a/.github/CODEOWNERS
++++ b/.github/CODEOWNERS
+@@ -55,6 +55,7 @@ src/applications/find-forms @department-of-veterans-affairs/vsa-public-websites-
+ src/applications/yellow-ribbon @department-of-veterans-affairs/vsa-public-websites-frontend
+ src/applications/search @department-of-veterans-affairs/vsa-public-websites-frontend @department-of-veterans-affairs/vsa-facilities-frontend @department-of-veterans-affairs/vsa-caregiver-frontend
+ src/applications/resources-and-support @department-of-veterans-affairs/vsa-public-websites-frontend @department-of-veterans-affairs/vsa-facilities-frontend @department-of-veterans-affairs/vsa-caregiver-frontend
++src/site/includes/debug.drupal.liquid @department-of-veterans-affairs/vsa-public-websites-frontend @department-of-veterans-affairs/vsa-facilities-frontend
+ src/site/layouts/campaign_landing_page.drupal.liquid @department-of-veterans-affairs/vsa-public-websites-frontend
+ src/site/stages/build/process-cms-exports/schemas/input/block_content-promo.js @department-of-veterans-affairs/vsa-public-websites-frontend
+ src/site/stages/build/process-cms-exports/schemas/input/node-basic_landing_page.js @department-of-veterans-affairs/vsa-public-websites-frontend
+diff --git a/script/preview.js b/script/preview.js
+index 1bffcfad27..bb23684b42 100644
+--- a/script/preview.js
++++ b/script/preview.js
+@@ -37,6 +37,7 @@ const COMMAND_LINE_OPTIONS_DEFINITIONS = [
+   { name: 'content-directory', type: String, defaultValue: defaultContentDir },
+   { name: 'accessibility', type: Boolean, defaultValue: true },
+   { name: 'lint-plain-language', type: Boolean, defaultValue: false },
++  { name: 'omitdebug', type: Boolean, defaultValue: false },
+   {
+     name: 'drupal-address',
+     type: String,
+diff --git a/src/site/includes/debug.drupal.liquid b/src/site/includes/debug.drupal.liquid
+index 638741f328..ae0e4c87f7 100644
+--- a/src/site/includes/debug.drupal.liquid
++++ b/src/site/includes/debug.drupal.liquid
+@@ -1,12 +1,12 @@
+ {% if isPreview or buildtype != 'vagovprod' %}
+-  {% if omitdebug == false %}
++  {% if !omitdebug %}
+     {% assign showDebug = true %}
+   {% endif %}
+ {% endif %}
+ 
+ {% if showDebug %}
+-<script nonce="**CSP_NONCE**" data-template="includes/debug">
+-  window.contentData = {{ debug }};
+-  console.info('Metalsmith template generated from content:', window.contentData);
+-</script>
++  <script nonce="**CSP_NONCE**" data-template="includes/debug">
++    window.contentData = {{ debug }};
++    console.info('Metalsmith template generated from content:', window.contentData);
++  </script>
+ {% endif %}
+-- 
+2.30.0
+

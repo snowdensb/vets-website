@@ -1,0 +1,78 @@
+From 6a4f770228f107d108d0b004a95418455f2271ba Mon Sep 17 00:00:00 2001
+From: Nick Sullivan <nick.sullivan@adhocteam.us>
+Date: Fri, 5 Mar 2021 13:38:33 -0500
+Subject: [PATCH] [Jenkinsfile] Decrement Drupal parallelization to 10 if not a
+ content deployment (#16275)
+
+* [Jenkinsfile] Decrement Drupal parallelization to 10 if not a content deployment
+
+* decrement to 5
+
+* pass arg through to build.sh
+
+* adjust order
+
+* remove equals sign
+---
+ jenkins/build.sh      | 6 +++++-
+ jenkins/common.groovy | 9 +++++++--
+ 2 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/jenkins/build.sh b/jenkins/build.sh
+index 81898f063a..7f2022e71a 100755
+--- a/jenkins/build.sh
++++ b/jenkins/build.sh
+@@ -21,6 +21,10 @@ do
+       drupalAddress="${2}"
+       shift 2
+       ;;
++    --drupalMaxParallelRequests)
++      drupalMaxParallelRequests="${2}"
++      shift 2
++      ;;
+     --pull-drupal)
+       pullDrupal="${1}"
+       shift
+@@ -43,6 +47,6 @@ done
+ # exit code.  In this case, if the build command fails, the tee
+ # command won't trick Jenkins into thinking the step passed.
+ set -o pipefail
+-npm --no-color run build -- --buildtype="$envName" --asset-source="$assetSource" --drupal-address="$drupalAddress" "$omitdebug" "$pullDrupal" 2>&1 | tee "$buildLog"
++npm --no-color run build -- --verbose --buildtype="$envName" --asset-source="$assetSource" --drupal-address="$drupalAddress" --drupal-max-parallel-requests="$drupalMaxParallelRequests" "$omitdebug" "$pullDrupal" 2>&1 | tee "$buildLog"
+ 
+ exit $?
+diff --git a/jenkins/common.groovy b/jenkins/common.groovy
+index 87cb3a9d03..e8d2fe2354 100644
+--- a/jenkins/common.groovy
++++ b/jenkins/common.groovy
+@@ -161,7 +161,7 @@ def checkForBrokenLinks(String buildLogPath, String envName, Boolean contentOnly
+     // Only break the build if broken links are found in master
+     if (IS_PROD_BRANCH || contentOnlyBuild) {
+       echo "Notifying Slack channel."
+-      
++
+       // slackUploadFile(filePath: csvFile, channel: 'dev_null', failOnError: true, initialComment: "Found broken links in the ${envName} build on `${env.BRANCH_NAME}`.")
+ 
+       // Until slackUploadFile works...
+@@ -202,12 +202,17 @@ def build(String ref, dockerContainer, String assetSource, String envName, Boole
+   def drupalAddress = DRUPAL_ADDRESSES.get('vagovprod')
+   def drupalCred = DRUPAL_CREDENTIALS.get('vagovprod')
+   def drupalMode = useCache ? '' : '--pull-drupal'
++  def drupalMaxParallelRequests = 5;
++
++  if (contentOnlyBuild) {
++    drupalMaxParallelRequests = 15
++  }
+ 
+   withCredentials([usernamePassword(credentialsId:  "${drupalCred}", usernameVariable: 'DRUPAL_USERNAME', passwordVariable: 'DRUPAL_PASSWORD')]) {
+     dockerContainer.inside(DOCKER_ARGS) {
+       def buildLogPath = "/application/${envName}-build.log"
+ 
+-      sh "cd /application && jenkins/build.sh --envName ${envName} --assetSource ${assetSource} --drupalAddress ${drupalAddress} ${drupalMode} --buildLog ${buildLogPath} --verbose"
++      sh "cd /application && jenkins/build.sh --envName ${envName} --assetSource ${assetSource} --drupalAddress ${drupalAddress} --drupalMaxParallelRequests ${drupalMaxParallelRequests} ${drupalMode} --buildLog ${buildLogPath} --verbose"
+ 
+       if (envName == 'vagovprod') {
+         // Find any broken links in the log
+-- 
+2.30.0
+
