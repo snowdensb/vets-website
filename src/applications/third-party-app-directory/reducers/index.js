@@ -13,6 +13,8 @@ import {
 const initialState = {
   error: '',
   fetching: false,
+  page: 1, // mocking page data until api is updated
+  perPage: 10, // default in initial mocks
   results: undefined,
   scopes: {},
   totalResults: undefined,
@@ -31,11 +33,13 @@ export const thirdPartyAppsReducer = (state = initialState, action) => {
       return { ...state, error: action.error, fetching: false };
     }
     case FETCH_RESULTS_SUCCESS: {
+      const data = get(action, ['response', 'data'], {});
       return {
         ...state,
         fetching: false,
-        results: get(action, ['response', 'data'], {}),
-        totalResults: action?.response?.totalResults,
+        results: data,
+        // totalResults: data.length,
+        totalResults: 100, //  testing a large list of apps, remove and use line above
       };
     }
     case FETCH_SCOPES: {
