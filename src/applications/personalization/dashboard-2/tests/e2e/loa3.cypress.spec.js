@@ -4,6 +4,7 @@ import serviceHistory from '@@profile/tests/fixtures/service-history-success.jso
 import fullName from '@@profile/tests/fixtures/full-name-success.json';
 import disabilityRating from '@@profile/tests/fixtures/disability-rating-success.json';
 import claimsSuccess from '@@profile/tests/fixtures/claims-success';
+import appealsSuccess from '@@profile/tests/fixtures/appeals-success';
 
 import manifest from 'applications/personalization/dashboard/manifest.json';
 
