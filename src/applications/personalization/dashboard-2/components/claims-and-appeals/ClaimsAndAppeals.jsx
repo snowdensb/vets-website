@@ -10,62 +10,10 @@ import {
   getClaimsV2 as getClaimsAction,
 } from '~/applications/claims-status/actions';
 
-import NotificationCTA from '../NotificationCTA';
+import ClaimsAndAppealsCTA from './ClaimsAndAppealsCTA';
+import HighlightedClaimAppeal from './HighlightedClaimAppeal';
 import useOpenClaimsAppealsCount from './hooks/useOpenClaimOrAppealCount';
 import useHighlightedClaimOrAppeal from './hooks/useHighlightedClaimOrAppeal';
-
-const ClaimsAndAppealsCTA = ({ count }) => {
-  let content = 'Go to all claims or appeals';
-  if (count === 1) {
-    content = '1 claim or appeal in progress';
-  } else if (count > 1) {
-    content = `${count} claims or appeals in progress`;
-  }
-  return (
-    <div className="vads-u-display--flex vads-u-flex-direction--column vads-l-col--12 medium-screen:vads-l-col--6 small-desktop-screen:vads-l-col--4 medium-screen:vads-u-padding-right--3">
-      <NotificationCTA
-        CTA={{
-          text: content,
-          href: 'claim-or-appeal-status/',
-          icon: 'clipboard',
-        }}
-      />
-    </div>
-  );
-};
-
-const HighlightedClaimAppeal = ({ claimOrAppeal }) => {
-  if (!claimOrAppeal) {
-    return <p>You have no claims or appeals updates in the last 30 days.</p>;
-  } else {
-    return (
-      <div className="vads-l-col--12 medium-screen:vads-l-col--6 small-desktop-screen:vads-l-col--8 medium-screen:vads-u-padding-right--3">
-        <div className="vads-u-padding-y--2p5 vads-u-padding-x--2p5 vads-u-background-color--gray-lightest">
-          <h3 className="vads-u-margin-top--0">
-            Claim for compensation received June 7, 1999
-          </h3>
-          <div className="vads-u-display--flex">
-            <i
-              aria-hidden="true"
-              className={`fas fa-fw fa-check-circle vads-u-margin-right--1 vads-u-margin-top--0p5 vads-u-color--green`}
-            />
-            <div>
-              <p className="vads-u-margin-y--0">
-                Status: Evidence gathering, review, and decision
-              </p>
-              <p className="vads-u-margin-y--0">
-                We sent you a development letter
-              </p>
-            </div>
-          </div>
-          <a className="usa-button-primary" href="claim-or-appeal-status/">
-            View details
-          </a>
-        </div>
-      </div>
-    );
-  }
-};
 
 const ClaimsAndAppeals = ({
   appealsData,
