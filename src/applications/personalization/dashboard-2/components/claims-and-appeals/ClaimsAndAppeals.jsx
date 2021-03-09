@@ -10,6 +10,7 @@ import {
   getClaimsV2 as getClaimsAction,
 } from '~/applications/claims-status/actions';
 
+import NotificationCTA from '../NotificationCTA';
 import useOpenClaimsAppealsCount from './hooks/useOpenClaimOrAppealCount';
 import useHighlightedClaimOrAppeal from './hooks/useHighlightedClaimOrAppeal';
 
@@ -20,7 +21,19 @@ const ClaimsAndAppealsCTA = ({ count }) => {
   } else if (count > 1) {
     content = `${count} claims or appeals in progress`;
   }
-  return <a href="claim-or-appeal-status/">{content}</a>;
+  return (
+    <div className="vads-u-display--flex vads-u-flex-direction--column vads-l-col--12 medium-screen:vads-l-col--6 small-desktop-screen:vads-l-col--4 medium-screen:vads-u-padding-right--3">
+      <NotificationCTA
+        CTA={{
+          text: content,
+          href: 'claim-or-appeal-status/',
+          ariaLabel: 'go to all claims or appeals',
+          icon: 'clipboard',
+        }}
+      />
+    </div>
+  );
+  // return <a href="claim-or-appeal-status/">{content}</a>;
 };
 
 const HighlightedClaimAppeal = ({ claimOrAppeal }) => {
