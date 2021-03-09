@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 import LoadingIndicator from '@department-of-veterans-affairs/component-library/LoadingIndicator';
 
 import backendServices from '~/platform/user/profile/constants/backendServices';
-import { createIsServiceAvailableSelector } from '~/platform/user/selectors';
+import {
+  createIsServiceAvailableSelector,
+  selectProfile,
+} from '~/platform/user/selectors';
 
 import {
   getAppealsV2 as getAppealsAction,
@@ -27,6 +30,7 @@ const ClaimsAndAppeals = ({
   shouldLoadAppeals,
   shouldLoadClaims,
   shouldShowLoadingIndicator,
+  userFullName,
 }) => {
   React.useEffect(
     () => {
@@ -72,7 +76,10 @@ const ClaimsAndAppeals = ({
     return (
       <div>
         <h2>Claims & appeals</h2>
-        <HighlightedClaimAppeal claimOrAppeal={highlightedClaimOrAppeal} />
+        <HighlightedClaimAppeal
+          claimOrAppeal={highlightedClaimOrAppeal}
+          name={userFullName}
+        />
         <ClaimsAndAppealsCTA count={openClaimsOrAppealsCount} />
       </div>
     );
@@ -100,6 +107,7 @@ const mapStateToProps = state => {
     shouldLoadAppeals: isAppealsAvailableSelector(state),
     shouldLoadClaims: isClaimsAvailableSelector(state),
     shouldShowLoadingIndicator: appealsLoading || claimsLoading,
+    userFullName: selectProfile(state).userFullName,
   };
 };
 
