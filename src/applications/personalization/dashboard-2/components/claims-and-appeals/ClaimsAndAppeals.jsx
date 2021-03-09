@@ -27,13 +27,11 @@ const ClaimsAndAppealsCTA = ({ count }) => {
         CTA={{
           text: content,
           href: 'claim-or-appeal-status/',
-          ariaLabel: 'go to all claims or appeals',
           icon: 'clipboard',
         }}
       />
     </div>
   );
-  // return <a href="claim-or-appeal-status/">{content}</a>;
 };
 
 const HighlightedClaimAppeal = ({ claimOrAppeal }) => {
@@ -41,11 +39,13 @@ const HighlightedClaimAppeal = ({ claimOrAppeal }) => {
     return <p>You have no claims or appeals updates in the last 30 days.</p>;
   } else {
     return (
-      <div>
-        <p>Show some details about the claim or appeal</p>
-        <a className="usa-button-primary" href="claim-or-appeal-status/">
-          View details
-        </a>
+      <div className="vads-l-col--12 medium-screen:vads-l-col--6 small-desktop-screen:vads-l-col--8 medium-screen:vads-u-padding-right--3">
+        <div className="vads-u-padding-y--2p5 vads-u-padding-x--2p5 vads-u-background-color--gray-lightest">
+          <p>Show some details about the claim or appeal</p>
+          <a className="usa-button-primary" href="claim-or-appeal-status/">
+            View details
+          </a>
+        </div>
       </div>
     );
   }
