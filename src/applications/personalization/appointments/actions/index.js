@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { replace, uniq, map, isEmpty, reduce } from 'lodash';
+import { replace, uniq, isEmpty } from 'lodash';
 import environment from 'platform/utilities/environment';
 import { apiRequest } from 'platform/utilities/api';
 import {
@@ -97,8 +97,7 @@ export function fetchConfirmedFutureAppointments() {
         );
       }
       const facilityIDs = uniq(
-        map(
-          vaAppointments,
+        vaAppointments.map(
           appointment =>
             getStagingID(appointment?.attributes?.sta6aid)
               ? `vha_${getStagingID(appointment?.attributes?.sta6aid)}`
@@ -116,8 +115,7 @@ export function fetchConfirmedFutureAppointments() {
         );
       }
 
-      facilitiesLookup = reduce(
-        facilitiesResponse?.data,
+      facilitiesLookup = facilitiesResponse?.data?.reduce(
         (lookup, facility) => {
           const facilityID = replace(facility?.id, 'vha_', '');
           // eslint-disable-next-line no-param-reassign
@@ -132,8 +130,7 @@ export function fetchConfirmedFutureAppointments() {
       });
     }
 
-    const formattedVAAppointments = reduce(
-      vaAppointments,
+    const formattedVAAppointments = vaAppointments.reduce(
       (accumulator, appointment) => {
         const startDate = moment(appointment?.attributes?.startDate);
         const now = moment();
@@ -172,8 +169,7 @@ export function fetchConfirmedFutureAppointments() {
       [],
     );
 
-    const formattedCCAppointments = reduce(
-      ccAppointments,
+    const formattedCCAppointments = ccAppointments.reduce(
       (accumulator, appointment) => {
         const startDate = moment(appointment?.attributes?.appointmentTime);
         const now = moment();
