@@ -39,7 +39,12 @@ const HealthCare = ({
         });
       }
     },
-    [canAccessRx, loadPrescriptions, isCernerPatient],
+    [
+      canAccessRx,
+      loadPrescriptions,
+      isCernerPatient,
+      fetchConfirmedFutureAppointments,
+    ],
   );
 
   if (isCernerPatient && facilityNames?.length) {
