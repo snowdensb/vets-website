@@ -138,6 +138,7 @@ const mapStateToProps = state => {
   ];
 
   return {
+    appointments: state.health?.appointments?.data,
     appointments: state?.health?.appointmentsReducer?.appointments,
     isCernerPatient: selectIsCernerPatient(state),
     facilityNames,

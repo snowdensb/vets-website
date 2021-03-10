@@ -1,8 +1,5 @@
-// Direct copy
-// Appointments in these "HIDDEN_SET"s should not be shown in appointment lists at all
 export const FUTURE_APPOINTMENTS_HIDDEN_SET = new Set(['NO-SHOW', 'DELETED']);
 
-// Direct copy
 export const VIDEO_TYPES = {
   gfe: 'MOBILE_GFE',
   clinic: 'CLINIC_BASED',

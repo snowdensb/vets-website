@@ -1,15 +1,14 @@
 import React from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 
 import HealthCareCard from './HealthCareCard';
-import { recordDashboardClick } from 'applications/personalization/dashboard/helpers';
+import { recordDashboardClick } from '~/applications/personalization/dashboard/helpers';
 
 import { mhvUrl } from '~/platform/site-wide/mhv/utilities';
 
 export const Appointments = ({ authenticatedWithSSOe, appointments }) => {
-  const nextAppointment = appointments?.[0];
+  const nextAppointment = appointments[0];
   const start = new Date(nextAppointment?.startsAt);
   const today = new Date();
   const hasUpcomingAppointment = differenceInDays(start, today) < 30;
@@ -20,7 +19,7 @@ export const Appointments = ({ authenticatedWithSSOe, appointments }) => {
 
   let locationName;
 
-  if (nextAppointment && nextAppointment?.isVideo) {
+  if (nextAppointment?.isVideo) {
     locationName = 'VA Video Connect';
 
     if (nextAppointment?.additionalInfo) {
@@ -28,33 +27,24 @@ export const Appointments = ({ authenticatedWithSSOe, appointments }) => {
     }
   }
 
-  if (nextAppointment && !nextAppointment?.isVideo) {
-    locationName = nextAppointment.providerName;
+  if (!nextAppointment?.isVideo) {
+    locationName = nextAppointment?.providerName;
   }
 
   const cardDetails = {
     sectionTitle: 'Appointments',
     ctaIcon: 'calendar',
-    ctaHref: mhvUrl(
-      authenticatedWithSSOe,
-      'web/myhealthevet/refill-appointments',
-    ),
-    ctaAriaLabel: 'View upcoming appointments',
-    ctaOnClick: recordDashboardClick('view-all-appointments'),
-    ctaText: `${appointments?.length} upcoming appointment${
-      hasFutureAppointments > 1 ? 's' : ''
-    }`,
+    ctaHref: mhvUrl(authenticatedWithSSOe, 'appointments'),
+    ctaAriaLabel: 'Manage all appointments',
+    ctaOnClick: recordDashboardClick('manage-all-appointments'),
+    ctaText: 'Manage all appointments',
   };
 
   // has an upcoming appointment in the next 30 days
   if (hasFutureAppointments) {
     cardDetails.cardTitle = 'Next appointment';
-    cardDetails.line1 = moment(nextAppointment?.startsAt).format(
-      'dddd, MMMM Mo, YYYY',
-    );
-    cardDetails.line2 = `Time: ${moment(nextAppointment?.startsAt).format(
-      'h:mm a',
-    )} ${nextAppointment?.timeZone}`;
+    cardDetails.line1 = format(start, 'EEEE, MMMM Mo, yyyy');
+    cardDetails.line2 = `Time: ${format(start, 'h:mm aaaa')} ${nextAppointment?.timeZone}`;
     cardDetails.line3 = locationName;
   }
 
@@ -68,7 +58,6 @@ export const Appointments = ({ authenticatedWithSSOe, appointments }) => {
   if (!hasFutureAppointments) {
     cardDetails.cardTitle = '';
     cardDetails.line1 = noUpcomingAppointmentsCopy;
-    cardDetails.ctaText = 'Go to appointments';
   }
 
   if (!nextAppointment) {

@@ -1,8 +1,3 @@
-// Ensure sorting is done correctly (startsAt wise)
-// Ensure we display the correct location for CC and VA
-// Ensure we show correct additional Info for video
-// Ensure we display correct timezone
-
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
@@ -14,7 +9,7 @@ import {
   upcomingCCAppointment,
   upcomingVideoAppointment,
   farFutureAppointments,
-} from '~/applications/personalization/dashboard-2/utils/mocks/appointments';
+} from '~/applications/personalization/dashboard-2/utils/appointments';
 
 describe('Appointments', () => {
   describe('when we have an upcoming VA appointment', () => {
@@ -26,7 +21,7 @@ describe('Appointments', () => {
 
     it('should render all necessary elements', () => {
       expect(wrapper.text()).to.contain('Cheyenne VA Medical Center');
-      expect(wrapper.text()).to.contain('3 upcoming appointments');
+      expect(wrapper.text()).to.contain('Manage all appointments');
       wrapper.unmount();
     });
   });
@@ -41,7 +36,7 @@ describe('Appointments', () => {
 
     it('should render all necessary elements', () => {
       expect(wrapper.text()).to.contain('Jeckle and Hyde');
-      expect(wrapper.text()).to.contain('3 upcoming appointments');
+      expect(wrapper.text()).to.contain('Manage all appointments');
       wrapper.unmount();
     });
   });
@@ -55,7 +50,7 @@ describe('Appointments', () => {
 
     it('should render all necessary elements', () => {
       expect(wrapper.text()).to.contain('VA Video Connect at home');
-      expect(wrapper.text()).to.contain('3 upcoming appointments');
+      expect(wrapper.text()).to.contain('Manage all appointments');
       wrapper.unmount();
     });
   });
@@ -73,7 +68,7 @@ describe('Appointments', () => {
     });
   });
 
-  describe('when we do not have upcoming appointments in the next 30 days, but after', () => {
+  describe('when we have appointments after 30 days', () => {
     const props = {
       authenticatedWithSSOe: true,
       appointments: farFutureAppointments,
@@ -84,7 +79,7 @@ describe('Appointments', () => {
       expect(wrapper.text()).to.contain(
         'You have no appointments scheduled in the next 30 days.',
       );
-      expect(wrapper.text()).to.contain('3 upcoming appointments');
+      expect(wrapper.text()).to.contain('Manage all appointments');
       wrapper.unmount();
     });
   });

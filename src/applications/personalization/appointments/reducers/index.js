@@ -5,7 +5,7 @@ import {
 } from '~/applications/personalization/dashboard-2/constants';
 
 const initialState = {
-  appointments: [],
+  data: [],
   fetching: false,
 };
 
@@ -15,7 +15,7 @@ export default (state = initialState, action) => {
       return { ...state, fetching: true };
     }
     case FETCH_CONFIRMED_FUTURE_APPOINTMENTS_SUCCEEDED: {
-      return { ...state, fetching: false, appointments: action.appointments };
+      return { ...state, fetching: false, data: action.appointments };
     }
     case FETCH_CONFIRMED_FUTURE_APPOINTMENTS_FAILED: {
       return { ...state, fetching: false };

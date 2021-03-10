@@ -10,9 +10,10 @@ import {
   FETCH_CONFIRMED_FUTURE_APPOINTMENTS,
   FETCH_CONFIRMED_FUTURE_APPOINTMENTS_FAILED,
   FETCH_CONFIRMED_FUTURE_APPOINTMENTS_SUCCEEDED,
+  FUTURE_APPOINTMENTS_HIDDEN_SET,
   VIDEO_TYPES,
 } from '~/applications/personalization/dashboard-2/constants';
-import MOCK_FACILITIES from '~/applications/personalization/dashboard-2/constants/MOCK_FACILITIES_RESPONSE.json';
+import MOCK_FACILITIES from '~/applications/personalization/dashboard-2/utils/mocks/appointments/MOCK_FACILITIES.json';
 import MOCK_VA_APPOINTENTS from '~/applications/personalization/dashboard-2/utils/mocks/appointments/MOCK_VA_APPOINTMENTS';
 import MOCK_CC_APPOINTMENTS from '~/applications/personalization/dashboard-2/utils/mocks/appointments/MOCK_CC_APPOINTMENTS';
 
@@ -84,7 +85,7 @@ export function fetchConfirmedFutureAppointments() {
       .toISOString();
 
     try {
-      if (environment.isLocalhost()) {
+      if (environment.isLocalhost() && !window.Cypress) {
         vaAppointments = MOCK_VA_APPOINTENTS;
         ccAppointments = MOCK_CC_APPOINTMENTS;
       } else {
@@ -105,7 +106,7 @@ export function fetchConfirmedFutureAppointments() {
         ),
       );
 
-      if (environment.isLocalhost()) {
+      if (environment.isLocalhost() && !window.Cypress) {
         facilitiesResponse = MOCK_FACILITIES;
       } else {
         facilitiesResponse = await apiRequest(
@@ -136,9 +137,16 @@ export function fetchConfirmedFutureAppointments() {
       (accumulator, appointment) => {
         const startDate = moment(appointment?.attributes?.startDate);
         const now = moment();
+        const appointmentStatus =
+          appointment?.attributes?.vdsAppointments?.[0]?.currentStatus;
 
         // Past appointments should be filtered out already on the api side, this is a safe guard.
         if (startDate.isBefore(now)) {
+          return accumulator;
+        }
+
+        // Hide cancelled or no-show appointments
+        if (FUTURE_APPOINTMENTS_HIDDEN_SET.has(appointmentStatus)) {
           return accumulator;
         }
 

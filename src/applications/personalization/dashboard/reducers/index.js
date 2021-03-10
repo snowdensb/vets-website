@@ -4,7 +4,7 @@ import prescriptions from './prescriptions';
 import recipients from './recipients';
 import folders from './folders';
 import preferences from '../../preferences/reducers';
-import appointmentsReducer from '~/applications/personalization/appointments/reducers';
+import appointments from '~/applications/personalization/appointments/reducers';
 import profile from '@@profile/reducers';
 
 import ratedDisabilities from '~/applications/personalization/rated-disabilities/reducers';
@@ -18,7 +18,7 @@ export default {
   ...ratedDisabilities,
   hcaEnrollmentStatus,
   health: combineReducers({
-    appointmentsReducer,
+    appointments,
     rx: combineReducers({
       prescriptions,
     }),
