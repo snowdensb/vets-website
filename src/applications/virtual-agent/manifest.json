@@ -1,0 +1,6 @@
+{
+  "appName": "virtual-agent",
+  "entryFile": "./app-entry.jsx",
+  "entryName": "virtual-agent",
+  "rootUrl": "/virtual-agent"
+}
