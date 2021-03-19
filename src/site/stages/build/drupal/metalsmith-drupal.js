@@ -21,7 +21,7 @@ const {
 const { addHubIconField } = require('./benefit-hub');
 const { addHomeContent } = require('./home');
 
-const DRUPAL_CACHE_FILENAME = 'drupal/pages.json';
+const DRUPAL_CACHE_DIR = 'drupal/pages';
 const DRUPAL_HUB_NAV_FILENAME = 'hubNavNames.json';
 
 // If "--pull-drupal" is passed into the build args, then the build
@@ -31,19 +31,21 @@ const PULL_DRUPAL_BUILD_ARG = 'pull-drupal';
 // should use the files in the cms-export directory
 const USE_CMS_EXPORT_BUILD_ARG = 'use-cms-export';
 const CMS_EXPORT_DIR_BUILD_ARG = 'cms-export-dir';
-const CMS_EXPORT_CACHE_FILENAME =
-  '.cache/localhost/drupal/pagesTransformed.json';
+// const CMS_EXPORT_CACHE_FILENAME =
+//   '.cache/localhost/drupal/pagesTransformed.json';
 
-const getDrupalCachePath = buildOptions =>
+const getDrupalCacheDir = buildOptions =>
   buildOptions[USE_CMS_EXPORT_BUILD_ARG]
     ? buildOptions[CMS_EXPORT_DIR_BUILD_ARG]
-    : path.join(buildOptions.cacheDirectory, DRUPAL_CACHE_FILENAME);
+    : path.join(buildOptions.cacheDirectory, DRUPAL_CACHE_DIR);
+
+const dirIsEmpty = dir => !fs.existsSync(dir) || !fs.readdirSync(dir).length;
 
 // We need to pull the Drupal content if we have --pull-drupal or --use-cms-export, OR if
 // the content is not available in the cache.
 const shouldPullDrupal = buildOptions =>
   buildOptions[PULL_DRUPAL_BUILD_ARG] ||
-  !fs.existsSync(getDrupalCachePath(buildOptions));
+  dirIsEmpty(getDrupalCacheDir(buildOptions));
 
 function pipeDrupalPagesIntoMetalsmith(contentData, files) {
   const pages = contentData.data.nodeQuery.entities.filter(
@@ -133,6 +135,29 @@ function pipeDrupalPagesIntoMetalsmith(contentData, files) {
   }
 }
 
+function createJSONCacheFiles(cacheDir, drupalPages) {
+  fs.emptyDirSync(cacheDir);
+  drupalPages.data.nodeQuery.entities
+    .filter(page => page.entityId)
+    .forEach(page => {
+      const fullPath = path.join(cacheDir, page.entityId);
+      fs.outputJsonSync(fullPath, page, { spaces: 2 });
+    });
+}
+
+function loadJSONCacheFiles(cacheDir) {
+  const entities = [];
+
+  const files = fs.readdirSync(cacheDir);
+  console.log({ cacheDir, files });
+  files.forEach(file => {
+    const contents = fs.readJsonSync(path.join(cacheDir, file));
+    entities.push(contents);
+  });
+
+  return { data: { nodeQuery: { entities } } };
+}
+
 /**
  * Uses Drupal content via a new GraphQL query or the cached result of a
  * previous query. This is where the cache is saved.
@@ -142,7 +167,7 @@ function pipeDrupalPagesIntoMetalsmith(contentData, files) {
  */
 async function getContentViaGraphQL(buildOptions) {
   const contentApi = getApiClient(buildOptions);
-  const drupalCache = getDrupalCachePath(buildOptions);
+  const drupalCacheDir = getDrupalCacheDir(buildOptions);
   const drupalHubMenuNames = path.join(
     buildOptions.paramsDirectory,
     DRUPAL_HUB_NAV_FILENAME,
@@ -170,7 +195,7 @@ async function getContentViaGraphQL(buildOptions) {
     }
 
     // Save new cache
-    fs.outputJsonSync(drupalCache, drupalPages, { spaces: 2 });
+    createJSONCacheFiles(drupalCacheDir, drupalPages);
 
     if (drupalPages.data.allSideNavMachineNamesQuery) {
       fs.outputJsonSync(
@@ -184,7 +209,7 @@ async function getContentViaGraphQL(buildOptions) {
     log(`To pull latest, run with "--${PULL_DRUPAL_BUILD_ARG}" flag.`);
 
     // eslint-disable-next-line import/no-dynamic-require
-    drupalPages = require(drupalCache);
+    drupalPages = loadJSONCacheFiles(drupalCacheDir);
   }
 
   return drupalPages;
@@ -212,12 +237,13 @@ async function getContentFromExport(buildOptions) {
 }
 
 async function loadDrupal(buildOptions) {
-  const drupalCache = getDrupalCachePath(buildOptions);
+  const drupalCacheDir = getDrupalCacheDir(buildOptions);
+  fs.ensureDirSync(drupalCacheDir);
 
-  if (!fs.existsSync(drupalCache)) {
-    log(`Drupal content unavailable in local cache: ${drupalCache}`);
+  if (dirIsEmpty(drupalCacheDir)) {
+    log(`Drupal content unavailable in local cache: ${drupalCacheDir}`);
   } else {
-    log(`Drupal content cache found: ${drupalCache}`);
+    log(`Drupal content cache found: ${drupalCacheDir}`);
   }
 
   const contentTimer = `Total time to load content from ${
@@ -233,7 +259,7 @@ async function loadDrupal(buildOptions) {
   console.timeEnd(contentTimer);
 
   // Dynamic GraphQL from CMS build
-  fs.outputJsonSync(CMS_EXPORT_CACHE_FILENAME, drupalPages);
+  // fs.outputJsonSync(CMS_EXPORT_CACHE_FILENAME, drupalPages);
 
   log('Drupal successfully loaded!');
   return drupalPages;
