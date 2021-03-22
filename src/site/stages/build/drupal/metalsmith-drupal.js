@@ -149,7 +149,6 @@ function loadJSONCacheFiles(cacheDir) {
   const entities = [];
 
   const files = fs.readdirSync(cacheDir);
-  console.log({ cacheDir, files });
   files.forEach(file => {
     const contents = fs.readJsonSync(path.join(cacheDir, file));
     entities.push(contents);
