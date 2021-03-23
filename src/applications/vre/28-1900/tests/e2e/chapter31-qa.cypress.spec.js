@@ -1,8 +1,13 @@
+/* This is a VSA-QA E2E test, for compatibility with
+* cypress-testrail-reporter.
+* Once VSP's testForm() works w/ cypress-testrail-reporter,
+* this one can be removed.
+*/
+
+// import ADDRESS_DATA from 'platform/forms/address/data';
 import * as formData from './formDataSets/chapter31-maximal.json';
 
 Cypress.config('waitForAnimations', true);
-
-// QA-test to replace testForm, for cypress-testrail-reporter compatibility.
 
 describe('VRE Chapter 31', () => {
   const checkErrMsgs = (currentPage, completed = 0) => {
@@ -143,7 +148,7 @@ describe('VRE Chapter 31', () => {
         .eq(0)
         .type(newAddr.street);
       cy.get('[name*=city]').type(newAddr.city);
-      cy.get('[name*=state').select(newAddr.state);
+      cy.get('[name*=state]').select(newAddr.state);
       cy.get('[name*=postalCode]').type(newAddr.postalCode);
       cy.contains('Continue').click();
       cy.location('pathname').should('contain', '/communication-preferences');
@@ -158,12 +163,14 @@ describe('VRE Chapter 31', () => {
       const apptTimePrefs = formData.appointmentTimePreferences;
       const selectedApptTimePrefs = {};
 
+      // Actual form doesn't have 'Other' appointment-pref option.
+      delete apptTimePrefs.other;
+
       Object.keys(apptTimePrefs).forEach(key => {
         if (apptTimePrefs[key]) selectedApptTimePrefs[key] = true;
       });
-
-      cy.log('apptTimePrefs:', apptTimePrefs);
-      cy.log('apptTimePrefs:', selectedApptTimePrefs);
+      // cy.log('apptTimePrefs:', apptTimePrefs);
+      // cy.log('apptTimePrefs:', selectedApptTimePrefs);
 
       cy.get(`[name*=useEva][value=${formData.useEva ? 'Y' : 'N'}]`).check();
       cy.get(
@@ -172,6 +179,7 @@ describe('VRE Chapter 31', () => {
         }]`,
       ).check();
       Object.keys(selectedApptTimePrefs).forEach(key => {
+        cy.log(`currKey: ${key}`);
         cy.get(`[name*=appointmentTimePreferences][id*=${key}]`).check();
       });
       cy.contains('Continue').click();
@@ -179,6 +187,7 @@ describe('VRE Chapter 31', () => {
     });
   });
 
+  // eslint-disable-next-line mocha/no-exclusive-tests
   describe('Step 4 of 4: Review Application', () => {
     it('Should expand/collapse sections', () => {
       cy.get('.input-section').within(() => {
@@ -194,6 +203,31 @@ describe('VRE Chapter 31', () => {
       });
     });
     it('Should edit Veteran Information section', () => {
+      // cy.log('ADDRESS_DATA:', ADDRESS_DATA);
+      const vetInfo2 = {
+        fullName: {
+          first: 'Joe',
+          last: 'Blow',
+        },
+        ssn: '987654321',
+        dob: '1989-04-03',
+      };
+      const mainPhone2 = '123-457-7890';
+      const email2 = 'joe@vets.com';
+      const dobArr = vetInfo2.dob.split('-');
+      const dobMonth = dobArr[1].replace(/^0+/, '');
+      const dobDay = dobArr[2].replace(/^0+/, '');
+      const dobYear = dobArr[0];
+      const vetAddr2 = {
+        country: 'USA',
+        street: '321 Any St',
+        city: 'Anytown',
+        state: 'AZ',
+        postalCode: '54321',
+      };
+      const countryName = 'United States';
+      const stateName2 = 'Arizona';
+
       cy.get('.input-section').within(() => {
         cy.get('[data-chapter=veteranInformation]').within(() => {
           cy.get('.accordion-header button').click();
@@ -204,19 +238,6 @@ describe('VRE Chapter 31', () => {
               cy.get('div[name=veteranInformationScrollElement]')
                 .next('form')
                 .within(() => {
-                  const vetInfo2 = {
-                    fullName: {
-                      first: 'Joe',
-                      last: 'Blow',
-                    },
-                    ssn: '987654321',
-                    dob: '1989-04-03',
-                  };
-                  const dobArr = vetInfo2.dob.split('-');
-                  const dobMonth = dobArr[1].replace(/^0+/, '');
-                  const dobDay = dobArr[2].replace(/^0+/, '');
-                  const dobYear = dobArr[0];
-
                   cy.get(
                     '.form-review-panel-page-header-row button[aria-label*="Veteran Information"]',
                   ).click();
@@ -240,23 +261,45 @@ describe('VRE Chapter 31', () => {
                     .type(dobYear);
                   cy.contains('Update page')
                     .click()
-                    .should('not.exist');
+                    .then($btn => {
+                      cy.wrap($btn).should('not.exist');
+                    });
                   cy.get('.schemaform-block').should('not.exist');
                   cy.get('dl.review').should('be.visible');
+
+                  // Validate Vet-info edits.
+                  cy.get('dl.review').within(() => {
+                    cy.contains(/first.name/i)
+                      .next()
+                      .should('have.text', vetInfo2.fullName.first);
+                    cy.contains(/last.name/i)
+                      .next()
+                      .should('have.text', vetInfo2.fullName.last);
+                    cy.contains(/social.security/i)
+                      .next()
+                      .should(
+                        'have.text',
+                        vetInfo2.ssn.replace(
+                          /^(\d{3})(\d{2})(\d{4})$/,
+                          '$1-$2-$3',
+                        ),
+                      );
+                    cy.contains(/birth/i)
+                      .next()
+                      .should(
+                        'have.text',
+                        vetInfo2.dob.replace(
+                          /^(\d{4})-(\d{2})-(\d{2})$/,
+                          '$2/$3/$1',
+                        ),
+                      );
+                  });
                 });
 
               // Edit Contact Information subsection.
               cy.get('div[name=contactInformationScrollElement]')
                 .next('form')
                 .within(() => {
-                  const vetAddr2 = {
-                    country: 'USA',
-                    street: '321 Any St',
-                    city: 'Anytown',
-                    state: 'AZ',
-                    postalCode: '54321',
-                  };
-
                   cy.get(
                     '.form-review-panel-page-header-row button[aria-label*="Contact Information"]',
                   ).click();
@@ -278,15 +321,266 @@ describe('VRE Chapter 31', () => {
                   cy.get('[name*=postalCode]')
                     .clear()
                     .type(vetAddr2.postalCode);
+                  cy.get('[name*=mainPhone]')
+                    .clear()
+                    .type(mainPhone2);
+                  cy.get('[name*=email]')
+                    .clear()
+                    .type(email2);
+                  cy.get('[name*=confirmEmail]')
+                    .clear()
+                    .type(email2);
                   cy.contains('Update page')
                     .click()
-                    .should('not.exist');
+                    .then($btn => {
+                      cy.wrap($btn).should('not.exist');
+                    });
                   cy.get('.input-section.schemaform-field-container').should(
                     'not.exist',
                   );
                   cy.get('dl.review').should('be.visible');
+
+                  // Validate Contact-info edits.
+                  cy.get('dl.review').within(() => {
+                    cy.contains(/country/i)
+                      .next()
+                      .should('have.text', countryName);
+                    cy.contains(/street/i)
+                      .next()
+                      .should('have.text', vetAddr2.street);
+                    cy.contains(/city/i)
+                      .next()
+                      .should('have.text', vetAddr2.city);
+                    cy.contains(/state$/i)
+                      .next()
+                      .should('have.text', stateName2);
+                    cy.contains(/postal.code/i)
+                      .next()
+                      .should('have.text', vetAddr2.postalCode);
+                    cy.contains(/main.phone/i)
+                      .next()
+                      .should('have.text', mainPhone2);
+                    cy.contains(/^email/i)
+                      .next()
+                      .should('have.text', email2);
+                    cy.contains(/^confirm.email/i)
+                      .next()
+                      .should('have.text', email2);
+                  });
                 });
             });
+
+          // Collapse section.
+          cy.get('.accordion-header button').click();
+          cy.get('[id*=collapsible-]').should('not.be.visible');
+        });
+      });
+    });
+    it('Should edit Additional Information section', () => {
+      const yearsOfEducation2 = '14';
+      const newAddr2 = {
+        country: 'USA',
+        street: '125 Any St',
+        city: 'Anytown',
+        state: 'AZ',
+        postalCode: '54321',
+      };
+      const countryName = 'United States';
+      const stateName2 = 'Arizona';
+
+      cy.get('.input-section').within(() => {
+        cy.get('[data-chapter=additionalInformation]').within(() => {
+          cy.get('.accordion-header button').click();
+          cy.get('[id*=collapsible-]')
+            .should('be.visible')
+            .within(() => {
+              cy.get('div[name=additionalInformationScrollElement]')
+                .next('form')
+                .within(() => {
+                  // Edit Add'l. Info - Moving.
+                  cy.get(
+                    '.form-review-panel-page-header-row button[aria-label*="Additional Information"]',
+                  ).click();
+                  cy.get('.input-section.schemaform-field-container').should(
+                    'be.visible',
+                  );
+                  cy.get(
+                    'button[type=submit][aria-label*="Additional Information"]',
+                  ).should('be.visible');
+                  cy.get('[name*=yearsOfEducation]')
+                    .clear()
+                    .type(yearsOfEducation2);
+                  cy.get('[name*=isMoving][value=Y]').check();
+                  cy.get('[name*=country]').select(newAddr2.country);
+                  cy.get('[name*=street]')
+                    .eq(0)
+                    .clear()
+                    .type(newAddr2.street);
+                  cy.get('[name*=city]')
+                    .clear()
+                    .type(newAddr2.city);
+                  cy.get('[name*=state]').select(newAddr2.state);
+                  cy.get('[name*=postalCode]')
+                    .clear()
+                    .type(newAddr2.postalCode);
+                  cy.get(
+                    'button[type=submit][aria-label*="Additional Information"]',
+                  )
+                    .click()
+                    .then($btn => {
+                      cy.wrap($btn).should('not.exist');
+                    });
+                  cy.get('.schemaform-block').should('not.exist');
+                  cy.get('dl.review').should('be.visible');
+
+                  // Validate Add'l-Info edits - Moving.
+                  cy.get('dl.review').within(() => {
+                    cy.contains(/years.of.education/i)
+                      .next()
+                      .should('have.text', yearsOfEducation2);
+                    cy.contains(/moving/i)
+                      .parent()
+                      .next()
+                      .should('have.text', 'Yes');
+                    cy.contains(/country/i)
+                      .next()
+                      .should('have.text', countryName);
+                    cy.contains(/street/i)
+                      .next()
+                      .should('have.text', newAddr2.street);
+                    cy.contains(/city/i)
+                      .next()
+                      .should('have.text', newAddr2.city);
+                    cy.contains(/state$/i)
+                      .next()
+                      .should('have.text', stateName2);
+                    cy.contains(/postal.code/i)
+                      .next()
+                      .should('have.text', newAddr2.postalCode);
+                  });
+
+                  // Edit Add'l Info - Not Moving.
+                  // cy.get(
+                  //   '.form-review-panel-page-header-row button[aria-label*="Additional Information"]',
+                  // ).click();
+                  // cy.get('.input-section.schemaform-field-container').should(
+                  //   'be.visible',
+                  // );
+                  // cy.get(
+                  //   'button[type=submit][aria-label*="Additional Information"]',
+                  // ).should('be.visible');
+                  // cy.get('[name*=isMoving][value=N]').check();
+                  // cy.get('#root_newAddress__title').should('not.exist');
+                  // cy.get(
+                  //   'button[type=submit][aria-label*="Additional Information"]',
+                  // )
+                  //   .click()
+                  //   .then($btn => {
+                  //     cy.wrap($btn).should('not.exist');
+                  //   });
+                  // cy.get('.schemaform-block').should('not.exist');
+                  // cy.get('dl.review').should('be.visible');
+
+                  // Validate Add'l-Info edits - Moving.
+                  // cy.get('dl.review').within(() => {
+                  //   cy.contains(/moving/i)
+                  //     .next()
+                  //     .should('have.text', 'No');
+                  // });
+                });
+            });
+
+          // Collapse section.
+          cy.get('.accordion-header button').click();
+          cy.get('[id*=collapsible-]').should('not.be.visible');
+        });
+      });
+    });
+    it('Should edit Communication Preferences section', () => {
+      const useEva2 = formData.useEva ? 'N' : 'Y';
+      const useTelecounseling2 = formData.useTelecounseling ? 'N' : 'Y';
+      const apptTimePrefs = formData.appointmentTimePreferences;
+      const selectedApptTimePrefs = {};
+      const selectedApptTimePrefs2 = {};
+
+      // Actual form doesn't have 'Other' appointment-pref option.
+      delete apptTimePrefs.other;
+
+      Object.keys(apptTimePrefs).forEach(key => {
+        if (apptTimePrefs[key]) selectedApptTimePrefs[key] = true;
+      });
+      Object.keys(apptTimePrefs).forEach(key => {
+        if (!apptTimePrefs[key]) selectedApptTimePrefs2[key] = true;
+      });
+      cy.log('selectedApptTimePrefs:', selectedApptTimePrefs);
+      cy.log('selectedApptTimePrefs2:', selectedApptTimePrefs2);
+
+      cy.get('.input-section').within(() => {
+        cy.get('[data-chapter=communicationPreferences]').within(() => {
+          cy.get('.accordion-header button').click();
+          cy.get('[id*=collapsible-]')
+            .should('be.visible')
+            .within(() => {
+              // Edit Comm Prefs.
+              cy.get(
+                '.form-review-panel-page-header-row button[aria-label*="Communication Preferences"]',
+              ).click();
+              cy.get('.input-section.schemaform-field-container').should(
+                'be.visible',
+              );
+              cy.get(
+                'button[type=submit][aria-label*="Communication Preferences"]',
+              ).should('be.visible');
+              cy.get(`[name*=useEva][value=${useEva2}]`).check();
+              cy.get(
+                `[name*=useTelecounseling][value=${useTelecounseling2}]`,
+              ).check();
+              Object.keys(selectedApptTimePrefs).forEach(key => {
+                cy.get(
+                  `[name*=appointmentTimePreferences][id*=${key}]`,
+                ).uncheck();
+              });
+              Object.keys(selectedApptTimePrefs2).forEach(key => {
+                cy.get(
+                  `[name*=appointmentTimePreferences][id*=${key}]`,
+                ).check();
+              });
+              cy.get(
+                'button[type=submit][aria-label*="Communication Preferences"]',
+              )
+                .click()
+                .then($btn => {
+                  cy.wrap($btn).should('not.exist');
+                });
+              cy.get('.schemaform-block').should('not.exist');
+              cy.get('dl.review').should('be.visible');
+            });
+
+          // Validate Comm-Prefs edits.
+          cy.get('dl.review').within(() => {
+            cy.contains(/e-va/i)
+              .parent()
+              .parent()
+              .next()
+              .should('have.text', useEva2 === 'Y' ? 'Yes' : 'No');
+            cy.contains(/tele-counseling/i)
+              .parent()
+              .parent()
+              .next()
+              .should('have.text', useTelecounseling2 === 'Y' ? 'Yes' : 'No');
+            Object.keys(selectedApptTimePrefs).forEach(key => {
+              cy.contains(key, { matchCase: false })
+                .next()
+                .should('not.have.text', 'Selected');
+            });
+            Object.keys(selectedApptTimePrefs2).forEach(key => {
+              cy.contains(key, { matchCase: false })
+                .next()
+                .should('have.text', 'Selected');
+            });
+          });
+
+          // Collapse section.
           cy.get('.accordion-header button').click();
           cy.get('[id*=collapsible-]').should('not.be.visible');
         });
