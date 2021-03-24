@@ -237,15 +237,17 @@ function build(BUILD_OPTIONS) {
     'Generate navigation',
   );
 
-  smith.use(
-    layouts({
-      engine: 'liquid',
-      directory: BUILD_OPTIONS.layouts,
-      // Only apply layouts to markdown and html files.
-      pattern: '**/*.{md,html}',
-    }),
-    'Apply layouts',
-  );
+  ['a-c', 'd-f', 'g-i', 'j-l', 'm-o', 'p-r', 's-u', 'v-z'].forEach(range => {
+    smith.use(
+      layouts({
+        engine: 'liquid',
+        directory: BUILD_OPTIONS.layouts,
+        // Only apply layouts to markdown and html files.
+        pattern: `**/[${range}]*/*.{md,html}`,
+      }),
+      `Apply layouts ${range}`,
+    );
+  });
 
   /*
   * This will replace links in static pages with a staging domain,
@@ -282,7 +284,7 @@ function build(BUILD_OPTIONS) {
 
   /* eslint-disable no-console */
   smith.build(err => {
-    if (err) throw err;
+    if (err) console.log('Would have thrown: ', err);
     if (BUILD_OPTIONS.watch) {
       console.log('Metalsmith build finished!');
     } else {
