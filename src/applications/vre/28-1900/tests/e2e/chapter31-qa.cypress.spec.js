@@ -11,19 +11,20 @@ Cypress.config('waitForAnimations', true);
 
 describe('VRE Chapter 31', () => {
   const checkErrMsgs = (currentPage, completed = 0) => {
+    // completed param's for when some req'd fields are already completed.
     // Using findAllByText() here instead of get(), because
-    // not all .schemaform-required-span spans are used for req'd fields.
+    // not all .schemaform-required-span instances are used for req'd fields.
     cy.findAllByText(/required|choose.at.least/i, {
       selector: '.schemaform-required-span',
     }).then($collection => {
-      // Should have at least one required-span.
+      // Should have at least 1 required-span.
+      // I.e., at least 1 req'd field should be on the form-page.
       expect($collection).to.have.length.gt(0);
       cy.contains('Continue').click();
       // Error-messages count should equal required-spans count.
-      cy.get('.usa-input-error-message').should(
-        'have.length',
-        $collection.length - completed,
-      );
+      cy.get('.usa-input-error-message')
+        .should('have.length', $collection.length - completed)
+        .and('be.visible');
       // Form should not advance beyond current page.
       cy.location('pathname').should('contain', currentPage);
     });
@@ -166,12 +167,14 @@ describe('VRE Chapter 31', () => {
       // Actual form doesn't have 'Other' appointment-pref option.
       delete apptTimePrefs.other;
 
+      // Get selected appt-time-prefs.
       Object.keys(apptTimePrefs).forEach(key => {
         if (apptTimePrefs[key]) selectedApptTimePrefs[key] = true;
       });
       // cy.log('apptTimePrefs:', apptTimePrefs);
       // cy.log('apptTimePrefs:', selectedApptTimePrefs);
 
+      // Complete required fields.
       cy.get(`[name*=useEva][value=${formData.useEva ? 'Y' : 'N'}]`).check();
       cy.get(
         `[name*=useTelecounseling][value=${
@@ -180,7 +183,9 @@ describe('VRE Chapter 31', () => {
       ).check();
       Object.keys(selectedApptTimePrefs).forEach(key => {
         cy.log(`currKey: ${key}`);
-        cy.get(`[name*=appointmentTimePreferences][id*=${key}]`).check();
+        cy.get(
+          `[type=checkbox][name*=appointmentTimePreferences][id*=${key}]`,
+        ).check();
       });
       cy.contains('Continue').click();
       cy.location('pathname').should('contain', '/review-and-submit');
@@ -230,6 +235,7 @@ describe('VRE Chapter 31', () => {
 
       cy.get('.input-section').within(() => {
         cy.get('[data-chapter=veteranInformation]').within(() => {
+          // Expand section.
           cy.get('.accordion-header button').click();
           cy.get('[id*=collapsible-]')
             .should('be.visible')
@@ -238,6 +244,7 @@ describe('VRE Chapter 31', () => {
               cy.get('div[name=veteranInformationScrollElement]')
                 .next('form')
                 .within(() => {
+                  // Open edit-form.
                   cy.get(
                     '.form-review-panel-page-header-row button[aria-label*="Veteran Information"]',
                   ).click();
@@ -245,6 +252,7 @@ describe('VRE Chapter 31', () => {
                   cy.get(
                     'button[type=submit][aria-label*="Veteran Information"]',
                   ).should('be.visible');
+                  // Edit fields.
                   cy.get('[name*=fullName_first]')
                     .clear()
                     .type(vetInfo2.fullName.first);
@@ -259,6 +267,7 @@ describe('VRE Chapter 31', () => {
                   cy.get('[name*=_dobYear]')
                     .clear()
                     .type(dobYear);
+                  // Save edits.
                   cy.contains('Update page')
                     .click()
                     .then($btn => {
@@ -267,7 +276,7 @@ describe('VRE Chapter 31', () => {
                   cy.get('.schemaform-block').should('not.exist');
                   cy.get('dl.review').should('be.visible');
 
-                  // Validate Vet-info edits.
+                  // Validate edits.
                   cy.get('dl.review').within(() => {
                     cy.contains(/first.name/i)
                       .next()
@@ -390,6 +399,7 @@ describe('VRE Chapter 31', () => {
 
       cy.get('.input-section').within(() => {
         cy.get('[data-chapter=additionalInformation]').within(() => {
+          // Expand section.
           cy.get('.accordion-header button').click();
           cy.get('[id*=collapsible-]')
             .should('be.visible')
@@ -397,7 +407,7 @@ describe('VRE Chapter 31', () => {
               cy.get('div[name=additionalInformationScrollElement]')
                 .next('form')
                 .within(() => {
-                  // Edit Add'l. Info - Moving.
+                  // Open edit-form.
                   cy.get(
                     '.form-review-panel-page-header-row button[aria-label*="Additional Information"]',
                   ).click();
@@ -407,6 +417,7 @@ describe('VRE Chapter 31', () => {
                   cy.get(
                     'button[type=submit][aria-label*="Additional Information"]',
                   ).should('be.visible');
+                  // Edit fields.
                   cy.get('[name*=yearsOfEducation]')
                     .clear()
                     .type(yearsOfEducation2);
@@ -423,6 +434,7 @@ describe('VRE Chapter 31', () => {
                   cy.get('[name*=postalCode]')
                     .clear()
                     .type(newAddr2.postalCode);
+                  // Save edits.
                   cy.get(
                     'button[type=submit][aria-label*="Additional Information"]',
                   )
@@ -433,7 +445,7 @@ describe('VRE Chapter 31', () => {
                   cy.get('.schemaform-block').should('not.exist');
                   cy.get('dl.review').should('be.visible');
 
-                  // Validate Add'l-Info edits - Moving.
+                  // Validate edits.
                   cy.get('dl.review').within(() => {
                     cy.contains(/years.of.education/i)
                       .next()
@@ -458,35 +470,6 @@ describe('VRE Chapter 31', () => {
                       .next()
                       .should('have.text', newAddr2.postalCode);
                   });
-
-                  // Edit Add'l Info - Not Moving.
-                  // cy.get(
-                  //   '.form-review-panel-page-header-row button[aria-label*="Additional Information"]',
-                  // ).click();
-                  // cy.get('.input-section.schemaform-field-container').should(
-                  //   'be.visible',
-                  // );
-                  // cy.get(
-                  //   'button[type=submit][aria-label*="Additional Information"]',
-                  // ).should('be.visible');
-                  // cy.get('[name*=isMoving][value=N]').check();
-                  // cy.get('#root_newAddress__title').should('not.exist');
-                  // cy.get(
-                  //   'button[type=submit][aria-label*="Additional Information"]',
-                  // )
-                  //   .click()
-                  //   .then($btn => {
-                  //     cy.wrap($btn).should('not.exist');
-                  //   });
-                  // cy.get('.schemaform-block').should('not.exist');
-                  // cy.get('dl.review').should('be.visible');
-
-                  // Validate Add'l-Info edits - Moving.
-                  // cy.get('dl.review').within(() => {
-                  //   cy.contains(/moving/i)
-                  //     .next()
-                  //     .should('have.text', 'No');
-                  // });
                 });
             });
 
@@ -517,11 +500,12 @@ describe('VRE Chapter 31', () => {
 
       cy.get('.input-section').within(() => {
         cy.get('[data-chapter=communicationPreferences]').within(() => {
+          // Expand section.
           cy.get('.accordion-header button').click();
           cy.get('[id*=collapsible-]')
             .should('be.visible')
             .within(() => {
-              // Edit Comm Prefs.
+              // Open edit-form.
               cy.get(
                 '.form-review-panel-page-header-row button[aria-label*="Communication Preferences"]',
               ).click();
@@ -531,20 +515,22 @@ describe('VRE Chapter 31', () => {
               cy.get(
                 'button[type=submit][aria-label*="Communication Preferences"]',
               ).should('be.visible');
+              // Edit fields.
               cy.get(`[name*=useEva][value=${useEva2}]`).check();
               cy.get(
                 `[name*=useTelecounseling][value=${useTelecounseling2}]`,
               ).check();
               Object.keys(selectedApptTimePrefs).forEach(key => {
                 cy.get(
-                  `[name*=appointmentTimePreferences][id*=${key}]`,
+                  `[type=checkbox][name*=appointmentTimePreferences][id*=${key}]`,
                 ).uncheck();
               });
               Object.keys(selectedApptTimePrefs2).forEach(key => {
                 cy.get(
-                  `[name*=appointmentTimePreferences][id*=${key}]`,
+                  `[type=checkbox][name*=appointmentTimePreferences][id*=${key}]`,
                 ).check();
               });
+              // Save edits.
               cy.get(
                 'button[type=submit][aria-label*="Communication Preferences"]',
               )
@@ -556,7 +542,7 @@ describe('VRE Chapter 31', () => {
               cy.get('dl.review').should('be.visible');
             });
 
-          // Validate Comm-Prefs edits.
+          // Validate edits.
           cy.get('dl.review').within(() => {
             cy.contains(/e-va/i)
               .parent()
@@ -586,5 +572,42 @@ describe('VRE Chapter 31', () => {
         });
       });
     });
+    it('Should block submit before accepting privacy policy', () => {
+      cy.get('.progress-box-schemaform').within(() => {
+        cy.get('[type=checkbox][name*=privacyAgreement]').uncheck();
+        cy.contains('submit application', { matchCase: false }).click();
+        cy.get('.usa-input-error-message')
+          .last()
+          .should('be.visible')
+          .and('contain.text', 'privacy policy');
+      });
+    });
+    it('Should allow submit after accepting privacy policy', () => {
+      cy.intercept('POST', '/v0/veteran_readiness_employment_claims', {
+        formSubmissionId: '123fake-submission-id-567',
+        timestamp: '2020-11-12',
+        attributes: {
+          guid: '123fake-submission-id-567',
+        },
+      }).as('submitApplication');
+
+      cy.get('.progress-box-schemaform').within(() => {
+        cy.get('[type=checkbox][name*=privacyAgreement]').check();
+        cy.contains('submit application', { matchCase: false }).click();
+        cy.location('pathname').should('contain', '/confirmation');
+      });
+    });
+    // it('Should display error message on submission-failure', () => {
+    //   cy.intercept('POST', '/v0/veteran_readiness_employment_claims', {
+    //     statusCode: 500,
+    //     body: 'Submission failed',
+    //   }).as('submitApplication');
+
+    //   cy.get('.progress-box-schemaform').within(() => {
+    //     cy.get('[type=checkbox][name*=privacyAgreement]').check();
+    //     cy.contains('submit application', { matchCase: false }).click();
+    //     cy.get('.schemaform-failure-alert').should('be.visible');
+    //   });
+    // });
   });
 });
