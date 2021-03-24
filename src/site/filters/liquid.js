@@ -159,7 +159,13 @@ module.exports = function registerFilters() {
 
   liquid.filters.numToWord = numConvert => converter.toWords(numConvert);
 
-  liquid.filters.jsonToObj = jsonString => JSON.parse(jsonString);
+  liquid.filters.jsonToObj = jsonString => {
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      return {};
+    }
+  };
 
   liquid.filters.modulo = item => item % 2;
 
