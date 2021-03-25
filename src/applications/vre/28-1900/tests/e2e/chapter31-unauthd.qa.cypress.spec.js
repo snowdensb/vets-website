@@ -5,47 +5,13 @@
 */
 
 // import ADDRESS_DATA from 'platform/forms/address/data';
+import * as qaHelpers from '../helpers.qa';
 import * as formData from './formDataSets/chapter31-maximal.json';
 
 Cypress.config('waitForAnimations', true);
 
 describe('VRE Chapter 31', () => {
-  const checkErrMsgs = (currentPage, completed = 0) => {
-    // completed param's for when some req'd fields are already completed.
-    // Using findAllByText() here instead of get(), because
-    // not all .schemaform-required-span instances are used for req'd fields.
-    cy.findAllByText(/required|choose.at.least/i, {
-      selector: '.schemaform-required-span',
-    }).then($collection => {
-      // Should have at least 1 required-span.
-      // I.e., at least 1 req'd field should be on the form-page.
-      expect($collection).to.have.length.gt(0);
-      cy.contains('Continue').click();
-      // Error-messages count should equal required-spans count.
-      cy.get('.usa-input-error-message')
-        .should('have.length', $collection.length - completed)
-        .and('be.visible');
-      // Form should not advance beyond current page.
-      cy.location('pathname').should('contain', currentPage);
-    });
-  };
-  const checkMilAddress = () => {
-    const milCityOptVals = ['', 'APO', 'FPO', 'DPO'];
-
-    cy.get('[name*=isMilitary]').check();
-    cy.get('[name*=country')
-      .should('be.disabled')
-      .and('have.value', 'USA');
-    cy.get('label[for*=city]').should('contain.text', 'APO/FPO/DPO');
-    cy.get('input[name*=city]').should('not.exist');
-    cy.get('select[name*=city]').should('exist');
-    cy.get('select[name*=city] option').then(opts => {
-      const actualVals = [...opts].map(o => o.value);
-      expect(actualVals).to.deep.eq(milCityOptVals);
-    });
-    cy.get('[name*=isMilitary]').uncheck();
-  };
-
+  // eslint-disable-next-line mocha/no-exclusive-tests
   describe('Introduction', () => {
     it('Should hide Wizard after wizard-completion', () => {
       cy.visit(
@@ -68,7 +34,7 @@ describe('VRE Chapter 31', () => {
     it('Should display error-messages for empty required-fields', () => {
       // Using findAllByText() here instead of get(), because
       // one of the .schemaform-required-span spans is NOT for a req'd field.
-      checkErrMsgs('/veteran-information-review');
+      qaHelpers.checkErrMsgs('/veteran-information-review');
     });
     it('Should allow advance after required-fields completion', () => {
       const dobArr = formData.veteranInformation.dob.split('-');
@@ -95,10 +61,10 @@ describe('VRE Chapter 31', () => {
 
   describe('Step 1 of 4: Veteran Information [contact info]', () => {
     it('Should display error-messages for empty required-fields', () => {
-      checkErrMsgs('/veteran-contact-information');
+      qaHelpers.checkErrMsgs('/veteran-contact-information');
     });
     it('Should update label(s)/fields(s) for military address', () => {
-      checkMilAddress();
+      qaHelpers.checkMilAddress();
     });
     it('Should allow advance after required-fields completion', () => {
       const addr = formData.veteranAddress;
@@ -120,7 +86,7 @@ describe('VRE Chapter 31', () => {
 
   describe('Step 2 of 4: Additional Information', () => {
     it('Should display error-messages for empty required-fields - Not moving', () => {
-      checkErrMsgs('/additional-information');
+      qaHelpers.checkErrMsgs('/additional-information');
     });
     it('Should allow advance after required-fields completion - Not moving', () => {
       cy.get('[name*=yearsOfEducation]').type(formData.yearsOfEducation);
@@ -136,10 +102,10 @@ describe('VRE Chapter 31', () => {
       cy.get('[name*=newAddress').should('have.length.gte', 4);
     });
     it('Should display error-messages for empty required-fields - Moving', () => {
-      checkErrMsgs('/additional-information', 2);
+      qaHelpers.checkErrMsgs('/additional-information', 2);
     });
     it('Should update label(s)/fields(s) for military address - Moving', () => {
-      checkMilAddress();
+      qaHelpers.checkMilAddress();
     });
     it('Should allow advance after required-fields completion - Moving', () => {
       const newAddr = formData.newAddress;
@@ -158,7 +124,7 @@ describe('VRE Chapter 31', () => {
 
   describe('Step 3 of 4: Communication Preferences', () => {
     it('Should display error-messages for empty required-fields', () => {
-      checkErrMsgs('/communication-preferences');
+      qaHelpers.checkErrMsgs('/communication-preferences');
     });
     it('Should allow advance after required-fields completion', () => {
       const apptTimePrefs = formData.appointmentTimePreferences;
@@ -597,6 +563,7 @@ describe('VRE Chapter 31', () => {
         cy.location('pathname').should('contain', '/confirmation');
       });
     });
+    // TODO: Create minimal spec for submission-error message.
     // it('Should display error message on submission-failure', () => {
     //   cy.intercept('POST', '/v0/veteran_readiness_employment_claims', {
     //     statusCode: 500,
