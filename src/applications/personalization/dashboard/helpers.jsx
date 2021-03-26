@@ -2,7 +2,7 @@ import React from 'react';
 import * as Sentry from '@sentry/browser';
 import { isPlainObject } from 'lodash';
 
-import AlertBox from '@department-of-veterans-affairs/formation-react/AlertBox';
+import AlertBox from '@department-of-veterans-affairs/component-library/AlertBox';
 
 import { VA_FORM_IDS } from 'platform/forms/constants.js';
 import recordEvent from 'platform/monitoring/record-event';
@@ -181,6 +181,19 @@ export function isSIPEnabledForm(savedForm) {
     );
   }
   return true;
+}
+
+// This function is intended to be used as an Array.filter callback
+export function filterOutExpiredForms(savedForm) {
+  const { expiresAt } = savedForm.metadata;
+  // The metadata.expiresAt should a seconds-since-epoch timestamp, but we
+  // have some old tests where it is an ISO string. So this function is able
+  // parse either a string or a number
+  if (typeof expiresAt === 'number') {
+    return new Date(expiresAt * 1000).getTime() > Date.now();
+  }
+  // if expiresAt isn't a number, then it must be a parsable date string
+  return new Date(expiresAt).getTime() > Date.now();
 }
 
 // Callback to use with Array.sort that expects two properly formatted form

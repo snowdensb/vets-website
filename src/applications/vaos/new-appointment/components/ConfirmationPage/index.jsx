@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import recordEvent from 'platform/monitoring/record-event';
@@ -19,6 +19,7 @@ import {
   FLOW_TYPES,
   FACILITY_TYPES,
   GA_PREFIX,
+  FETCH_STATUS,
 } from '../../../utils/constants';
 import ConfirmationDirectScheduleInfo from './ConfirmationDirectScheduleInfo';
 import ConfirmationRequestInfo from './ConfirmationRequestInfo';
@@ -33,29 +34,28 @@ export function ConfirmationPage({
   startNewAppointmentFlow,
   fetchFacilityDetails,
   useProviderSelection,
+  submitStatus,
 }) {
-  const history = useHistory();
   const isDirectSchedule = flowType === FLOW_TYPES.DIRECT;
   const pageTitle = isDirectSchedule
     ? 'Your appointment has been scheduled'
     : 'Your appointment request has been submitted';
   useEffect(() => {
-    if (history && !data?.typeOfCareId) {
-      history.replace('/new-appointment');
-    }
-
     if (
       !facilityDetails &&
       data?.vaFacility &&
       data?.facilityType !== FACILITY_TYPES.COMMUNITY_CARE
     ) {
-      // Remove parse function when converting this call to FHIR service
       fetchFacilityDetails(data.vaFacility);
     }
 
     document.title = `${pageTitle} | Veterans Affairs`;
     scrollAndFocus();
   }, []);
+
+  if (submitStatus !== FETCH_STATUS.succeeded) {
+    return <Redirect to="/new-appointment" />;
+  }
 
   return (
     <div>
@@ -124,6 +124,7 @@ function mapStateToProps(state) {
     systemId: getSiteIdForChosenFacility(state),
     slot: getChosenSlot(state),
     useProviderSelection: selectUseProviderSelection(state),
+    submitStatus: state.newAppointment.submitStatus,
   };
 }
 

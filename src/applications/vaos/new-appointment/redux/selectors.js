@@ -18,7 +18,7 @@ import {
 import { getSiteIdFromOrganization } from '../../services/organization';
 import {
   getParentOfLocation,
-  getSiteIdFromFakeFHIRId,
+  getSiteIdFromFacilityId,
 } from '../../services/location';
 import { isEligible } from './helpers/eligibility';
 import {
@@ -134,7 +134,7 @@ export function getChosenCCSystemId(state) {
 }
 
 export function getSiteIdForChosenFacility(state) {
-  return getSiteIdFromFakeFHIRId(getFormData(state).vaFacility);
+  return getSiteIdFromFacilityId(getFormData(state).vaFacility);
 }
 
 export function getParentOfChosenFacility(state) {
@@ -201,10 +201,6 @@ export function getDateTimeSelect(state, pageKey) {
   const eligibilityStatus = getEligibilityStatus(state);
   const systemId = getSiteIdForChosenFacility(state);
 
-  const availableDates = Array.from(
-    new Set(availableSlots?.map(slot => slot.start.split('T')[0])),
-  );
-
   const timezoneDescription = systemId
     ? getTimezoneDescBySystemId(systemId)
     : null;
@@ -213,7 +209,6 @@ export function getDateTimeSelect(state, pageKey) {
 
   return {
     ...formInfo,
-    availableDates,
     availableSlots,
     eligibleForRequests: eligibilityStatus.request,
     facilityId: data.vaFacility,
@@ -258,12 +253,13 @@ export function selectProviderSelectionInfo(state) {
     ccProviderPageSortMethod: sortMethod,
   } = getNewAppointment(state);
 
-  const typeOfCareId = getTypeOfCare(data).ccId;
+  const typeOfCare = getTypeOfCare(data);
 
   return {
     address: selectVAPResidentialAddress(state),
+    typeOfCareName: typeOfCare.name,
     communityCareProviderList:
-      communityCareProviders[`${sortMethod}_${typeOfCareId}`] || [],
+      communityCareProviders[`${sortMethod}_${typeOfCare.ccId}`],
     requestStatus,
     requestLocationStatus,
     currentLocation,
@@ -316,8 +312,7 @@ export function getFacilityPageV2Info(state) {
     singleValidVALocation: validFacilities?.length === 1 && !!data.vaFacility,
     showEligibilityModal,
     sortMethod: facilityPageSortMethod,
-    typeOfCare: typeOfCare?.name,
-    typeOfCareId: typeOfCare?.id,
+    typeOfCare,
   };
 }
 

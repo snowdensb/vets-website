@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import State from '../../../components/State';
 import { FACILITY_SORT_METHODS } from '../../../utils/constants';
 import { scrollAndFocus } from '../../../utils/scrollAndFocus';
+import AlertBox from '@department-of-veterans-affairs/component-library/AlertBox';
 
 const INITIAL_FACILITY_DISPLAY_COUNT = 5;
 
@@ -10,6 +12,7 @@ const INITIAL_FACILITY_DISPLAY_COUNT = 5;
  * form system.
  */
 export default function FacilitiesRadioWidget({
+  id,
   options,
   value,
   onChange,
@@ -37,11 +40,7 @@ export default function FacilitiesRadioWidget({
   useEffect(
     () => {
       if (displayedOptions.length > INITIAL_FACILITY_DISPLAY_COUNT) {
-        scrollAndFocus(
-          `#${
-            enumOptions[INITIAL_FACILITY_DISPLAY_COUNT].label.id
-          }_${INITIAL_FACILITY_DISPLAY_COUNT + 1}`,
-        );
+        scrollAndFocus(`#${id}_${INITIAL_FACILITY_DISPLAY_COUNT + 1}`);
       }
     },
     [displayedOptions.length, displayAll],
@@ -50,7 +49,7 @@ export default function FacilitiesRadioWidget({
   return (
     <div>
       {displayedOptions.map((option, i) => {
-        const { id, name, address, legacyVAR } = option?.label;
+        const { name, address, legacyVAR } = option?.label;
         const checked = option.value === value;
         let distance;
 
@@ -79,7 +78,7 @@ export default function FacilitiesRadioWidget({
                 {name}
               </span>
               <span className="vads-u-display--block vads-u-font-size--sm">
-                {address?.city}, {address?.state}
+                {address?.city}, <State state={address?.state} />
               </span>
               {!!distance && (
                 <span className="vads-u-display--block vads-u-font-size--sm">
@@ -106,6 +105,13 @@ export default function FacilitiesRadioWidget({
             </span>
           </button>
         )}
+
+      <AlertBox
+        backgroundOnly
+        content="If you get a vaccine that requires 2 doses, you'll need to return to the same facility for your second dose."
+        headline="Some COVID-19 vaccines require 2 doses"
+        status="info"
+      />
     </div>
   );
 }

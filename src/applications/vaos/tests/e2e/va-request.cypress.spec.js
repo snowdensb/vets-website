@@ -13,11 +13,14 @@ function fillOutForm(facilitySelection) {
   cy.get('.va-modal-body button').click();
   cy.findAllByRole('tab').should('exist');
 
+  // Select primary care appointment type
+  cy.get('#schedule-new-appointment-0').click();
+
   // Start flow
-  cy.findByText('Schedule an appointment').click();
+  cy.findByText('Start scheduling').click();
 
   // Choose Type of Care
-  newApptTests.chooseTypeOfCareTest('Mental health');
+  newApptTests.chooseTypeOfCareTest('Social work');
 
   // Choose VA Facility
   cy.url().should('include', '/va-facility');
@@ -47,7 +50,10 @@ function fillOutForm(facilitySelection) {
 
   // Check form requestBody is as expected
   cy.wait('@appointmentRequests').should(xhr => {
-    let date = moment().add(5, 'days');
+    let date = moment()
+      .add(5, 'days')
+      .add(1, 'months')
+      .startOf('month');
 
     // Check for weekend and select following Monday if true
     if (date.weekday() === 0) {
@@ -75,7 +81,7 @@ function fillOutForm(facilitySelection) {
 
     expect(request.facility.facilityCode).to.eq('983GB');
     expect(request.facility.parentSiteCode).to.eq('983');
-    expect(request).to.have.property('typeOfCareId', '502');
+    expect(request).to.have.property('typeOfCareId', '125');
     expect(request).to.have.property('visitType', 'Office Visit');
     expect(request).to.have.property('optionTime1', 'AM');
     expect(request).to.have.property('optionTime2', 'No Time Selected');
@@ -107,8 +113,7 @@ describe('VAOS request flow', () => {
     initAppointmentListMock();
     initVARequestMock();
     fillOutForm(() => {
-      cy.findByLabelText(/CHYSHR/).click();
-      cy.findByLabelText('CHYSHR-Sidney VA Clinic (Sidney, NE)').click();
+      cy.findByLabelText(/Sidney/).click();
     });
   });
   it('should submit form successfully for a single system user', () => {
@@ -122,12 +127,12 @@ describe('VAOS request flow', () => {
       },
     });
     fillOutForm(() => {
-      cy.findByLabelText('CHYSHR-Sidney VA Clinic (Sidney, NE)').click();
+      cy.findByLabelText(/Sidney/).click();
     });
   });
-  it('should submit form successfully for a user with single system and enabled facility', () => {
+  it('should submit form successfully for a user with multi system including a Cerner facility', () => {
     initAppointmentListMock();
-    initVARequestMock();
+    initVARequestMock({ cernerUser: true });
     cy.route({
       method: 'GET',
       url: '/vaos/v0/facilities**',

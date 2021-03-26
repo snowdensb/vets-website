@@ -1,10 +1,12 @@
 // Node modules.
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 // Relative imports.
 import * as customPropTypes from '../prop-types';
-import { FORM_MOMENT_DATE_FORMAT } from '../constants';
+import {
+  FORM_MOMENT_PRESENTATION_DATE_FORMAT,
+  FORM_MOMENT_CONSTRUCTOR_DATE_FORMAT,
+} from '../constants';
 import FormTitle from './FormTitle';
 import recordEvent from 'platform/monitoring/record-event';
 
@@ -30,12 +32,16 @@ const deriveLinkPropsFromFormURL = url => {
 
 export const deriveLatestIssue = (d1, d2) => {
   if (!d1 && !d2) return 'N/A';
-  if (!d1) return moment(d2).format(FORM_MOMENT_DATE_FORMAT); // null scenarios
-  if (!d2) return moment(d1).format(FORM_MOMENT_DATE_FORMAT);
+  if (!d1) return moment(d2).format(FORM_MOMENT_PRESENTATION_DATE_FORMAT); // null scenarios
+  if (!d2) return moment(d1).format(FORM_MOMENT_PRESENTATION_DATE_FORMAT);
 
-  if (moment(d1).isAfter(d2)) return moment(d1).format(FORM_MOMENT_DATE_FORMAT);
+  const date1Formatted = moment(d1).format(FORM_MOMENT_CONSTRUCTOR_DATE_FORMAT);
+  const date2Formatted = moment(d2).format(FORM_MOMENT_CONSTRUCTOR_DATE_FORMAT);
 
-  return moment(d2).format(FORM_MOMENT_DATE_FORMAT);
+  if (moment(date1Formatted).isAfter(date2Formatted))
+    return moment(date1Formatted).format(FORM_MOMENT_PRESENTATION_DATE_FORMAT);
+
+  return moment(date2Formatted).format(FORM_MOMENT_PRESENTATION_DATE_FORMAT);
 };
 
 const recordGAEventHelper = ({
@@ -64,11 +70,7 @@ const recordGAEventHelper = ({
     'search-typeahead-enabled': false, // consistently populate with false since there's no type ahead enabled for this search feature
   });
 
-const SearchResult = ({
-  form,
-  formMetaInfo,
-  showFindFormsResultsLinkToFormDetailPages,
-}) => {
+const SearchResult = ({ form, formMetaInfo }) => {
   // Escape early if we don't have the necessary form attributes.
   if (!form?.attributes) {
     return null;
@@ -81,6 +83,7 @@ const SearchResult = ({
       formDetailsUrl,
       lastRevisionOn,
       benefitCategories,
+      vaFormAdministration,
       title,
       url,
     },
@@ -94,8 +97,13 @@ const SearchResult = ({
   const pdfLabel = url.toLowerCase().includes('.pdf') ? '(PDF)' : '';
   const lastRevision = deriveLatestIssue(firstIssuedOn, lastRevisionOn);
 
+  let relatedTo = vaFormAdministration;
+
+  if (benefitCategories?.length > 0) {
+    relatedTo = benefitCategories.map(f => f.name).join(', ');
+  }
+
   const recordGAEvent = (eventTitle, eventUrl, eventType) =>
-    showFindFormsResultsLinkToFormDetailPages &&
     recordGAEventHelper({ ...formMetaInfo, eventTitle, eventUrl, eventType });
 
   return (
@@ -105,20 +113,16 @@ const SearchResult = ({
         formUrl={formDetailsUrl}
         title={title}
         recordGAEvent={recordGAEvent}
-        showFindFormsResultsLinkToFormDetailPages={
-          showFindFormsResultsLinkToFormDetailPages
-        }
       />
-
-      <dd className="vads-u-margin-y--1 vads-u-margin-y--1">
+      <dd className="vads-u-margin-y--1 vads-u-margin-y--1 vsa-from-last-updated">
         <dfn className="vads-u-font-weight--bold">Form last updated:</dfn>{' '}
         {lastRevision}
       </dd>
 
-      {benefitCategories && benefitCategories.length > 0 ? (
+      {relatedTo ? (
         <dd className="vads-u-margin-y--1 vads-u-margin-y--1">
           <dfn className="vads-u-font-weight--bold">Related to:</dfn>{' '}
-          {benefitCategories.map(f => f.name).join(', ')}
+          {relatedTo}
         </dd>
       ) : null}
 
@@ -134,8 +138,7 @@ const SearchResult = ({
           Download VA form {id} {pdfLabel}
         </a>
       </dd>
-
-      {showFindFormsResultsLinkToFormDetailPages && formToolUrl ? (
+      {formToolUrl ? (
         <dd>
           <a
             className="usa-button usa-button-secondary vads-u-margin-bottom--3"
@@ -158,7 +161,6 @@ const SearchResult = ({
 SearchResult.propTypes = {
   form: customPropTypes.Form.isRequired,
   formMetaInfo: customPropTypes.FormMetaInfo,
-  showFindFormsResultsLinkToFormDetailPages: PropTypes.bool,
 };
 
 export default SearchResult;

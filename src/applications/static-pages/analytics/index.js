@@ -17,6 +17,16 @@ PAGE_EVENT_LISTENERS.set('/coronavirus-veteran-frequently-asked-questions/', [
   addQaSectionListeners,
 ]);
 
+PAGE_EVENT_LISTENERS.set(
+  '/coronavirus-veteran-frequently-asked-questions-esp/',
+  [addJumplinkListeners, addQaSectionListeners],
+);
+
+PAGE_EVENT_LISTENERS.set(
+  '/coronavirus-veteran-frequently-asked-questions-tag/',
+  [addJumplinkListeners, addQaSectionListeners],
+);
+
 function attachAnalytics() {
   try {
     const specialListeners = PAGE_EVENT_LISTENERS.get(

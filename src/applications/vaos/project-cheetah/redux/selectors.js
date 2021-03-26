@@ -1,14 +1,11 @@
-import moment from 'moment';
-import {
-  selectProfile,
-  selectVAPResidentialAddress,
-} from 'platform/user/selectors';
+import { selectVAPResidentialAddress } from 'platform/user/selectors';
 import { FETCH_STATUS } from '../../utils/constants';
 import {
   getTimezoneBySystemId,
   getTimezoneDescBySystemId,
 } from '../../utils/timezone';
-import { getSiteIdFromFakeFHIRId } from '../../services/location';
+import { getSiteIdFromFacilityId } from '../../services/location';
+import { selectCanUseVaccineFlow } from '../../appointment-list/redux/selectors';
 
 export function selectProjectCheetah(state) {
   return state.projectCheetah;
@@ -32,25 +29,25 @@ export function getProjectCheetahFormPageInfo(state, pageKey) {
 }
 
 export function getSiteIdForChosenFacility(state) {
-  return getSiteIdFromFakeFHIRId(
+  return getSiteIdFromFacilityId(
     selectProjectCheetahFormData(state).vaFacility,
   );
 }
 
 export function getChosenSlot(state) {
-  const availableSlots = selectProjectCheetah(state).availableSlots;
-  const selectedTime = selectProjectCheetahFormData(state).calendarData
-    ?.selectedDates?.[0].datetime;
+  const availableSlots = selectProjectCheetahNewBooking(state).availableSlots;
+  const selectedTime = selectProjectCheetahFormData(state).date1[0];
 
   return availableSlots?.find(slot => slot.start === selectedTime);
 }
 
-export function getChosenSlot2(state) {
-  const availableSlots = selectProjectCheetah(state).availableSlots;
-  const selectedTime = selectProjectCheetahFormData(state).calendarData
-    ?.selectedDates?.[1].datetime;
-
-  return availableSlots?.find(slot => slot.start === selectedTime);
+export function getChosenFacilityInfo(state) {
+  return (
+    selectProjectCheetahNewBooking(state).facilities?.find(
+      facility =>
+        facility.id === selectProjectCheetahFormData(state).vaFacility,
+    ) || null
+  );
 }
 
 export function getDateTimeSelect(state, pageKey) {
@@ -61,10 +58,6 @@ export function getDateTimeSelect(state, pageKey) {
   const availableSlots = newBooking.availableSlots;
   const systemId = getSiteIdForChosenFacility(state);
 
-  const availableDates = Array.from(
-    new Set(availableSlots?.map(slot => slot.start.split('T')[0])),
-  );
-
   const timezoneDescription = systemId
     ? getTimezoneDescBySystemId(systemId)
     : null;
@@ -72,27 +65,14 @@ export function getDateTimeSelect(state, pageKey) {
 
   return {
     ...formInfo,
-    availableDates,
     availableSlots,
     facilityId: data.vaFacility,
+    selectedFacility: getChosenFacilityInfo(state),
     appointmentSlotsStatus,
     preferredDate: data.preferredDate,
     timezone,
     timezoneDescription,
   };
-}
-
-export function selectAllowProjectCheetahBookings(state) {
-  return moment().diff(moment(selectProfile(state).dob), 'years') >= 15;
-}
-
-export function getChosenFacilityInfo(state) {
-  return (
-    selectProjectCheetahNewBooking(state).facilities?.find(
-      facility =>
-        facility.id === selectProjectCheetahFormData(state).vaFacility,
-    ) || null
-  );
 }
 
 export function getFacilityPageInfo(state) {
@@ -117,9 +97,6 @@ export function getFacilityPageInfo(state) {
     canScheduleAtChosenFacility: !!clinics[data.vaFacility]?.length,
     facilitiesStatus,
     clinicsStatus,
-    hasDataFetchingError:
-      facilitiesStatus === FETCH_STATUS.failed ||
-      clinicsStatus === FETCH_STATUS.failed,
     noValidVAFacilities:
       facilitiesStatus === FETCH_STATUS.succeeded && !validFacilities?.length,
     requestLocationStatus,
@@ -137,8 +114,52 @@ export function getClinicPageInfo(state, pageKey) {
 
   return {
     ...formPageInfo,
-    facilityDetails: facilities.find(
+    facilityDetails: facilities?.find(
       facility => facility.id === formPageInfo.data.vaFacility,
     ),
+  };
+}
+
+export function getChosenClinicInfo(state) {
+  const data = selectProjectCheetahFormData(state);
+  const clinics = selectProjectCheetahNewBooking(state).clinics;
+
+  return (
+    clinics[data.vaFacility]?.find(clinic => clinic.id === data.clinicId) ||
+    null
+  );
+}
+
+export function getReviewPage(state) {
+  return {
+    data: selectProjectCheetahFormData(state),
+    facility: getChosenFacilityInfo(state),
+    facilityDetails: getChosenFacilityInfo(state),
+    clinic: getChosenClinicInfo(state),
+    submitStatus: selectProjectCheetah(state).submitStatus,
+    submitStatusVaos400: selectProjectCheetah(state).submitStatusVaos400,
+    systemId: getSiteIdForChosenFacility(state),
+  };
+}
+
+export function selectConfirmationPage(state) {
+  return {
+    data: selectProjectCheetahFormData(state),
+    facilityDetails: getChosenFacilityInfo(state),
+    systemId: getSiteIdForChosenFacility(state),
+    submitStatus: selectProjectCheetah(state).submitStatus,
+  };
+}
+
+export function selectContactFacilitiesPageInfo(state) {
+  const newBooking = selectProjectCheetahNewBooking(state);
+
+  const { facilities, facilitiesStatus } = newBooking;
+
+  return {
+    facilities,
+    facilitiesStatus,
+    sortMethod: newBooking.facilityPageSortMethod,
+    canUseVaccineFlow: selectCanUseVaccineFlow(state),
   };
 }

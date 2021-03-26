@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { getBookingNoteFromAppointment } from '../../utils';
+import { appointmentSelector } from '../../../shared/utils/selectors';
+import { selectCurrentAppointment } from '../../../shared/redux-selectors';
 
-const ReasonForVisitField = ({ appointment }) => {
-  const bookingNote = getBookingNoteFromAppointment(appointment);
+const ReasonForVisitField = ({ appointment, onChange }) => {
+  const bookingNote = appointmentSelector.getBookingNote(appointment);
+
+  useEffect(
+    () => {
+      if (bookingNote?.reasonForVisit) {
+        onChange(bookingNote?.reasonForVisit);
+      }
+    },
+    [onChange, bookingNote],
+  );
   if (bookingNote?.reasonForVisit) {
     return (
       <section data-testid="reason-for-visit">
@@ -19,7 +29,7 @@ const ReasonForVisitField = ({ appointment }) => {
 };
 
 const mapStateToProps = state => ({
-  appointment: state?.questionnaireData?.context?.appointment,
+  appointment: selectCurrentAppointment(state),
 });
 
 export default connect(

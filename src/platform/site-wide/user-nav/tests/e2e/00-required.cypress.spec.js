@@ -35,7 +35,7 @@ const mockFetchSuggestions = () => {
   cy.route({
     method: 'GET',
     status: 200,
-    url: 'https://search.usa.gov/sayt?=&name=va&q=benefits',
+    url: 'https://search.usa.gov/sayt?name=va&q=benefits',
     response: [
       'benefits response 1',
       'benefits response 2',
@@ -47,7 +47,7 @@ const mockFetchSuggestions = () => {
   cy.route({
     method: 'GET',
     status: 200,
-    url: 'https://search.usa.gov/sayt?=&name=va&q=health',
+    url: 'https://search.usa.gov/sayt?name=va&q=health',
     response: [
       'health response 1',
       'health response 2',
@@ -135,7 +135,7 @@ describe('Site-wide Search functionality with typeahead enabled', () => {
       .children()
       .should('have.length', 5);
     cy.get('[data-e2e-id="sitewide-search-submit-button"]').focus();
-    cy.get('#suggestions-list').should('not.be.visible');
+    cy.get('#suggestions-list').should('not.exist');
   });
 
   it('Focusing the input field repopulates suggestions', () => {
@@ -147,7 +147,7 @@ describe('Site-wide Search functionality with typeahead enabled', () => {
       .children()
       .should('have.length', 5);
     cy.get('[data-e2e-id="sitewide-search-submit-button"]').focus();
-    cy.get('#suggestions-list').should('not.be.visible');
+    cy.get('#suggestions-list').should('not.exist');
     cy.get('#query').focus();
     cy.get('#suggestions-list').should('be.visible');
     cy.get('#suggestions-list')

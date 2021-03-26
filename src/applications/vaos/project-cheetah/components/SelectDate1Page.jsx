@@ -8,57 +8,36 @@ import CalendarWidget from '../../components/calendar/CalendarWidget';
 import moment from 'moment';
 import { FETCH_STATUS } from '../../utils/constants';
 import { getDateTimeSelect } from '../redux/selectors';
-import AlertBox from '@department-of-veterans-affairs/formation-react/AlertBox';
+import AlertBox from '@department-of-veterans-affairs/component-library/AlertBox';
 import { getRealFacilityId } from '../../utils/appointment';
+import NewTabAnchor from '../../components/NewTabAnchor';
+import useIsInitialLoad from '../../hooks/useIsInitialLoad';
+import LoadingIndicator from '@department-of-veterans-affairs/component-library/LoadingIndicator';
 
 const pageKey = 'selectDate1';
-const pageTitle = 'Select First Date';
+const pageTitle = 'Choose a date';
 
 const missingDateError =
   'Please choose your preferred date and time for your appointment.';
 
-export function getOptionsByDate(
-  selectedDate,
-  timezoneDescription,
-  availableSlots = [],
-) {
-  return availableSlots.reduce((acc, slot) => {
-    if (slot.start.split('T')[0] === selectedDate) {
-      let time = moment(slot.start);
-      if (slot.start.endsWith('Z')) {
-        time = time.tz(timezoneDescription);
-      }
-      const meridiem = time.format('A');
-      const screenReaderMeridiem = meridiem.replace(/\./g, '').toUpperCase();
-      acc.push({
-        value: slot.start,
-        label: (
-          <>
-            {time.format('h:mm')} <span aria-hidden="true">{meridiem}</span>{' '}
-            <span className="sr-only">{screenReaderMeridiem}</span>
-          </>
-        ),
-      });
-    }
-    return acc;
-  }, []);
-}
-
 function ErrorMessage({ facilityId }) {
   return (
-    <div aria-atomic="true" aria-live="assertive">
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      className="vads-u-margin-bottom--2"
+    >
       <AlertBox
         status="error"
+        level="2"
         headline="We’ve run into a problem when trying to find available appointment times"
       >
         To schedule this appointment, you can{' '}
-        <a
+        <NewTabAnchor
           href={`/find-locations/facility/vha_${getRealFacilityId(facilityId)}`}
-          rel="noopener noreferrer"
-          target="_blank"
         >
           call your local VA medical center
-        </a>
+        </NewTabAnchor>
         .
       </AlertBox>
     </div>
@@ -85,8 +64,8 @@ function goForward({
   setSubmitted,
   setValidationError,
 }) {
-  validate({ date: data.selectedDates, setValidationError });
-  if (data.selectedDates?.length) {
+  validate({ date: data.date1, setValidationError });
+  if (data.date1?.length) {
     routeToNextAppointmentPage(history, pageKey);
   } else if (submitted) {
     scrollAndFocus('.usa-input-error-message');
@@ -97,7 +76,6 @@ function goForward({
 
 export function SelectDate1Page({
   appointmentSlotsStatus,
-  availableDates,
   availableSlots,
   data,
   facilityId,
@@ -107,13 +85,18 @@ export function SelectDate1Page({
   routeToPreviousAppointmentPage,
   requestAppointmentDateChoice,
   routeToNextAppointmentPage,
+  selectedFacility,
   timezone,
   timezoneDescription,
 }) {
   const history = useHistory();
   const [submitted, setSubmitted] = useState(false);
   const [validationError, setValidationError] = useState(null);
-  const selectedDates = data.selectedDates;
+  const selectedDates = data.date1;
+  const loadingSlots =
+    appointmentSlotsStatus === FETCH_STATUS.loading ||
+    appointmentSlotsStatus === FETCH_STATUS.notStarted;
+  const isInitialLoad = useIsInitialLoad(loadingSlots);
 
   useEffect(() => {
     getAppointmentSlots(
@@ -127,8 +110,25 @@ export function SelectDate1Page({
       true,
     );
     document.title = `${pageTitle} | Veterans Affairs`;
-    scrollAndFocus();
   }, []);
+
+  useEffect(
+    () => {
+      if (
+        !isInitialLoad &&
+        !loadingSlots &&
+        appointmentSlotsStatus !== FETCH_STATUS.failed
+      ) {
+        scrollAndFocus('h2');
+      } else if (
+        (!loadingSlots && isInitialLoad) ||
+        appointmentSlotsStatus === FETCH_STATUS.failed
+      ) {
+        scrollAndFocus();
+      }
+    },
+    [isInitialLoad, loadingSlots, appointmentSlotsStatus],
+  );
 
   useEffect(
     () => {
@@ -141,46 +141,73 @@ export function SelectDate1Page({
 
   return (
     <div>
-      <h1 className="vads-u-font-size--h2">{pageTitle}</h1>
-      {appointmentSlotsStatus !== FETCH_STATUS.failed && (
-        <p>
-          Please select a desired date and time for your appointment.
-          {timezone &&
-            ` Appointment times are displayed in ${timezoneDescription}.`}
-        </p>
+      <h1 className="vads-u-font-size--h2">
+        {pageTitle}
+        <span className="schemaform-required-span vaos-calendar__page_header vads-u-font-size--base vads-u-font-family--sans vads-u-font-weight--normal">
+          (*Required)
+        </span>
+      </h1>
+      {appointmentSlotsStatus === FETCH_STATUS.failed && (
+        <ErrorMessage
+          facilityId={facilityId}
+          requestAppointmentDateChoice={requestAppointmentDateChoice}
+        />
       )}
-      <CalendarWidget
-        maxSelections={1}
-        availableDates={availableDates}
-        value={selectedDates}
-        additionalOptions={{
-          fieldName: 'datetime',
-          required: true,
-          maxSelections: 1,
-          getOptionsByDate: selectedDate =>
-            getOptionsByDate(selectedDate, timezone, availableSlots),
-        }}
-        loadingStatus={appointmentSlotsStatus}
-        loadingErrorMessage={
-          <ErrorMessage
-            facilityId={facilityId}
-            requestAppointmentDateChoice={requestAppointmentDateChoice}
+      {appointmentSlotsStatus !== FETCH_STATUS.failed && (
+        <>
+          <p>
+            {timezone &&
+              ` Appointment times are displayed in ${timezoneDescription}.`}
+          </p>
+          <p>
+            When choosing a date, make sure:
+            <ul>
+              <li>
+                You won’t have had a flu shot or any other vaccine in the past{' '}
+                <strong>2 weeks</strong>.
+              </li>
+              <li>
+                You can return to {selectedFacility.name} for your second dose{' '}
+                <strong>3 to 4 weeks after the date you select</strong>.
+              </li>
+            </ul>
+          </p>
+          <CalendarWidget
+            maxSelections={1}
+            availableSlots={availableSlots}
+            value={selectedDates}
+            additionalOptions={{
+              fieldName: 'datetime',
+              required: true,
+            }}
+            id="dateTime"
+            timezone={timezoneDescription}
+            disabled={loadingSlots}
+            disabledMessage={
+              <LoadingIndicator
+                setFocus
+                message="Finding appointment availability..."
+              />
+            }
+            onChange={dates => {
+              validate({ dates, setValidationError });
+              onCalendarChange(dates, pageKey);
+            }}
+            onNextMonth={getAppointmentSlots}
+            onPreviousMonth={getAppointmentSlots}
+            minDate={moment()
+              .add(1, 'days')
+              .format('YYYY-MM-DD')}
+            maxDate={moment()
+              .add(395, 'days')
+              .format('YYYY-MM-DD')}
+            validationError={submitted ? validationError : null}
+            required
+            requiredMessage="Please choose your preferred date and time for your appointment"
+            showValidation={submitted && !selectedDates?.length}
           />
-        }
-        onChange={dates => {
-          validate({ dates, setValidationError });
-          onCalendarChange(dates);
-        }}
-        onClickNext={getAppointmentSlots}
-        onClickPrev={getAppointmentSlots}
-        minDate={moment()
-          .add(1, 'days')
-          .format('YYYY-MM-DD')}
-        maxDate={moment()
-          .add(395, 'days')
-          .format('YYYY-MM-DD')}
-        validationError={submitted ? validationError : null}
-      />
+        </>
+      )}
       <FormButtons
         onBack={() => goBack({ routeToPreviousAppointmentPage, history })}
         onSubmit={() =>

@@ -22,6 +22,7 @@ import {
 } from '../../save-in-progress/actions';
 
 import { logOut } from '../../../user/authentication/actions';
+import { inProgressApi } from '../../helpers';
 
 let oldFetch;
 const setup = () => {
@@ -159,6 +160,21 @@ describe('Schemaform save / load actions:', () => {
         .then(() => {
           expect(global.fetch.args[0][0]).to.contain(
             '/v0/in_progress_forms/1010ez',
+          );
+          done();
+        })
+        .catch(err => {
+          done(err);
+        });
+    });
+    it('calls the Form 526-specific api to save the form', done => {
+      const thunk = saveAndRedirectToReturnUrl(VA_FORM_IDS.FORM_21_526EZ, {});
+      const dispatch = sinon.spy();
+
+      thunk(dispatch, getState)
+        .then(() => {
+          expect(global.fetch.args[0][0]).to.contain(
+            inProgressApi(VA_FORM_IDS.FORM_21_526EZ),
           );
           done();
         })
@@ -306,7 +322,7 @@ describe('Schemaform save / load actions:', () => {
         Promise.resolve({
           ok: true,
           json: () => ({
-            formData: { field: 'foo' }, // eslint-disable-line camelcase
+            formData: { field: 'foo' },
             metadata: {
               version: 0,
             },
@@ -317,6 +333,27 @@ describe('Schemaform save / load actions:', () => {
       return thunk(dispatch, getState).then(() => {
         expect(global.fetch.args[0][0]).to.contain(
           '/v0/in_progress_forms/1010ez',
+        );
+      });
+    });
+    it('dispatches a success from the form 526-specific api on form load', () => {
+      const thunk = fetchInProgressForm(VA_FORM_IDS.FORM_21_526EZ, {});
+      const dispatch = sinon.spy();
+      global.fetch.returns(
+        Promise.resolve({
+          ok: true,
+          json: () => ({
+            formData: { field: 'foo' },
+            metadata: {
+              version: 0,
+            },
+          }),
+        }),
+      );
+
+      return thunk(dispatch, getState).then(() => {
+        expect(global.fetch.args[0][0]).to.contain(
+          inProgressApi(VA_FORM_IDS.FORM_21_526EZ),
         );
       });
     });

@@ -1,3 +1,5 @@
+import recordEvent from 'platform/monitoring/record-event';
+import { GA_PREFIX } from '../utils/constants';
 import { getClinics, showEligibilityModal } from './redux/actions';
 import {
   selectProjectCheetahFormData,
@@ -8,12 +10,31 @@ export default {
   home: {
     url: '/',
   },
-  info: {
-    url: '/new-project-cheetah-booking',
-    next: 'vaFacility',
+  planAhead: {
+    url: '/new-covid-19-vaccine-booking',
+    next: 'receivedDoseScreener',
+  },
+  receivedDoseScreener: {
+    url: '/new-covid-19-vaccine-booking/received-dose',
+    next(state) {
+      const formData = selectProjectCheetahFormData(state);
+      if (formData.hasReceivedDose) {
+        recordEvent({
+          event: `${GA_PREFIX}-covid19-screener-yes`,
+        });
+        return 'contactFacilities';
+      }
+      recordEvent({
+        event: `${GA_PREFIX}-covid19-screener-no`,
+      });
+      return 'vaFacility';
+    },
+  },
+  contactFacilities: {
+    url: '/new-covid-19-vaccine-booking/contact-facilities',
   },
   vaFacility: {
-    url: '/new-project-cheetah-booking/facility',
+    url: '/new-covid-19-vaccine-booking/facility',
     async next(state, dispatch) {
       const formData = selectProjectCheetahFormData(state);
       let clinics = selectProjectCheetahNewBooking(state).clinics?.[
@@ -40,19 +61,23 @@ export default {
     },
   },
   clinicChoice: {
-    url: '/new-project-cheetah-booking/clinic',
+    url: '/new-covid-19-vaccine-booking/clinic',
     next: 'selectDate1',
   },
   selectDate1: {
-    url: '/new-project-cheetah-booking/select-date-1',
-    next: 'selectDate2',
+    url: '/new-covid-19-vaccine-booking/select-date-1',
+    next: 'secondDosePage',
   },
-  selectDate2: {
-    url: '/new-project-cheetah-booking/select-date-2',
+  secondDosePage: {
+    url: '/new-covid-19-vaccine-booking/plan-second-dose',
+    next: 'contactInfo',
+  },
+  contactInfo: {
+    url: '/new-covid-19-vaccine-booking/contact-info',
     next: 'review',
   },
   review: {
-    url: '/new-project-cheetah-booking/review',
+    url: '/new-covid-19-vaccine-booking/review',
     next: '',
   },
 };

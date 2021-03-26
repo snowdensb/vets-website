@@ -34,7 +34,7 @@ IS_DEV_BRANCH = env.BRANCH_NAME == DEV_BRANCH
 IS_STAGING_BRANCH = env.BRANCH_NAME == STAGING_BRANCH
 IS_PROD_BRANCH = env.BRANCH_NAME == PROD_BRANCH
 
-DOCKER_ARGS = "-v ${WORKSPACE}/vets-website:/application -v ${WORKSPACE}/vagov-content:/vagov-content"
+DOCKER_ARGS = "-v ${WORKSPACE}/vets-website:/application -v ${WORKSPACE}/vagov-content:/vagov-content --ulimit nofile=8192:8192"
 IMAGE_TAG = java.net.URLDecoder.decode(env.BUILD_TAG).replaceAll("[^A-Za-z0-9\\-\\_]", "-")
 DOCKER_TAG = "vets-website:" + IMAGE_TAG
 
@@ -143,6 +143,51 @@ def findMissingQueryFlags(String buildLogPath, String envName) {
   }
 }
 
+def accessibilityTests() {
+
+  if (shouldBail() || !VAGOV_BUILDTYPES.contains('vagovprod')) { return }
+  
+  stage("Accessibility") {
+
+     slackSend(
+        message: "Starting the daily accessibility scan of vets-website... ${env.RUN_DISPLAY_URL}".stripMargin(),
+        color: 'good',
+        channel: '-daily-accessibility-scan'
+      )
+
+    dir("vets-website") {
+      try {
+        parallel (
+          'nightwatch-accessibility': {
+            sh "export IMAGE_TAG=${IMAGE_TAG} && docker-compose -p accessibility up -d && docker-compose -p accessibility run --rm --entrypoint=npm -e BABEL_ENV=test -e BUILDTYPE=vagovprod vets-website --no-color run nightwatch:docker -- --env=accessibility"
+          },
+        )
+
+        slackSend(
+          message: 'The daily accessibility scan has completed successfully.',
+          color: 'good',
+          channel: '-daily-accessibility-scan'
+        )
+
+      } catch (error) {
+
+        slackSend(
+            message: "@here Daily accessibility tests have failed. ${env.RUN_DISPLAY_URL}".stripMargin(),
+            color: 'danger',
+            failOnError: true,
+            channel: '-daily-accessibility-scan'
+          )
+
+        throw error
+      } finally {
+        sh "docker-compose -p accessibility down --remove-orphans"
+        step([$class: 'JUnitResultArchiver', testResults: 'logs/nightwatch/**/*.xml'])
+      }
+    }
+
+  }
+}
+
 def checkForBrokenLinks(String buildLogPath, String envName, Boolean contentOnlyBuild) {
   // Look for broken links
   def csvFileName = "${envName}-broken-links.csv" // For use within the docker container
@@ -156,19 +201,40 @@ def checkForBrokenLinks(String buildLogPath, String envName, Boolean contentOnly
   // Output a csv file with the broken links
   sh "cd /application && jenkins/glean-broken-links.sh ${buildLogPath} ${csvFileName}"
   if (fileExists(csvFile)) {
-    echo "Found broken links; notifying the Slack channel."
-    // TODO: Move this slackUploadFile to cacheDrupalContent and update the echo statement above
-    // slackUploadFile(filePath: csvFile, channel: 'dev_null', failOnError: true, initialComment: "Found broken links in the ${envName} build on `${env.BRANCH_NAME}`.")
-
-    // Until slackUploadFile works...
-    def linkCount = sh(returnStdout: true, script: "cd /application && wc -l ${csvFileName} | cut -d ' ' -f1") as Integer
-    slackSend message: "${linkCount} broken links found in the ${envName} build on `${env.BRANCH_NAME}`\n${env.RUN_DISPLAY_URL}".stripMargin(),
-      color: 'danger',
-      failOnError: true,
-      channel: 'cms-team'
+    echo "Found broken links."
 
     // Only break the build if broken links are found in master
     if (IS_PROD_BRANCH || contentOnlyBuild) {
+      echo "Notifying Slack channel."
+
+      // slackUploadFile(filePath: csvFile, channel: 'dev_null', failOnError: true, initialComment: "Found broken links in the ${envName} build on `${env.BRANCH_NAME}`.")
+
+      // Until slackUploadFile works...
+      def brokenLinks = readFile(csvFile)
+      def brokenLinksCount = sh(returnStdout: true, script: "wc -l /application/${csvFileName} | cut -d ' ' -f1") as Integer
+      def brokenLinksMessage = "${brokenLinksCount} broken links found in the `${envName}` build on `${env.BRANCH_NAME}`\n@cmshelpdesk\n${env.RUN_DISPLAY_URL}\n${brokenLinks}".stripMargin()
+
+      slackSend(
+        message: brokenLinksMessage,
+        color: 'danger',
+        failOnError: true,
+        channel: 'cms-helpdesk-bot'
+        // attachments: brokenLinks
+        // TODO: errors out with ERROR: Slack notification failed with exception: net.sf.json.JSONException: Invalid JSON String
+        // needs to be formatted into JSON
+        // see also: https://stackoverflow.com/a/51556653/2043808
+      )
+
+      // TODO: Move this slackUploadFile to cacheDrupalContent and update the echo statement above
+      // TODO: determine correct file path relative to agent's workspace
+      // see also: https://github.com/jenkinsci/slack-plugin/issues/667#issuecomment-585982716
+      // slackUploadFile(
+      //   filePath: csvFile,
+      //   channel: 'cms-team',
+      //   initialComment: brokenLinksMessage
+      // )
+
+
       throw new Exception('Broken links found')
     }
   } else {
@@ -177,29 +243,28 @@ def checkForBrokenLinks(String buildLogPath, String envName, Boolean contentOnly
 }
 
 def build(String ref, dockerContainer, String assetSource, String envName, Boolean useCache, Boolean contentOnlyBuild) {
-  def long buildtime = System.currentTimeMillis() / 1000L;
-  def buildDetails = buildDetails(envName, ref, buildtime)
   // Use Drupal prod for all environments
   def drupalAddress = DRUPAL_ADDRESSES.get('vagovprod')
   def drupalCred = DRUPAL_CREDENTIALS.get('vagovprod')
   def drupalMode = useCache ? '' : '--pull-drupal'
+  def drupalMaxParallelRequests = 5;
+
+  if (contentOnlyBuild) {
+    drupalMaxParallelRequests = 15
+  }
 
   withCredentials([usernamePassword(credentialsId:  "${drupalCred}", usernameVariable: 'DRUPAL_USERNAME', passwordVariable: 'DRUPAL_PASSWORD')]) {
     dockerContainer.inside(DOCKER_ARGS) {
       def buildLogPath = "/application/${envName}-build.log"
 
-      sh "cd /application && jenkins/build.sh --envName ${envName} --assetSource ${assetSource} --drupalAddress ${drupalAddress} ${drupalMode} --buildLog ${buildLogPath} --verbose"
+      sh "cd /application && jenkins/build.sh --envName ${envName} --assetSource ${assetSource} --drupalAddress ${drupalAddress} --drupalMaxParallelRequests ${drupalMaxParallelRequests} ${drupalMode} --buildLog ${buildLogPath} --verbose"
 
       if (envName == 'vagovprod') {
-	checkForBrokenLinks(buildLogPath, envName, contentOnlyBuild)
-      }
-
-      // Find any missing query flags in the log
-      if (envName == 'vagovprod') {
+        // Find any broken links in the log
+        checkForBrokenLinks(buildLogPath, envName, contentOnlyBuild)
+        // Find any missing query flags in the log
         findMissingQueryFlags(buildLogPath, envName)
       }
-
-      sh "cd /application && echo \"${buildDetails}\" > build/${envName}/BUILD.txt"
     }
   }
 }
@@ -247,7 +312,7 @@ def buildAll(String ref, dockerContainer, Boolean contentOnlyBuild) {
 
 def prearchive(dockerContainer, envName) {
   dockerContainer.inside(DOCKER_ARGS) {
-    sh "cd /application && node --max-old-space-size=8192 script/prearchive.js --buildtype=${envName}"
+    sh "cd /application && node script/prearchive.js --buildtype=${envName}"
   }
 }
 
@@ -275,9 +340,17 @@ def prearchiveAll(dockerContainer) {
 }
 
 def archive(dockerContainer, String ref, String envName) {
+  def long buildtime = System.currentTimeMillis() / 1000L;
+  def buildDetails = buildDetails(envName, ref, buildtime)
+
   dockerContainer.inside(DOCKER_ARGS) {
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vetsgov-website-builds-s3-upload',
                      usernameVariable: 'AWS_ACCESS_KEY', passwordVariable: 'AWS_SECRET_KEY']]) {
+      sh "echo \"${buildDetails}\" > /application/build/${envName}/BUILD.txt"
+      if(envName == 'vagovdev' || envName == 'vagovstaging') {
+        sh "tar -C /application/build/${envName} -cf /application/build/apps.${envName}.tar.bz2 ."
+        sh "aws s3 cp /application/build/apps.${envName}.tar.bz2 s3://vetsgov-website-builds-s3-upload/application-build/${ref}/${envName}.tar.bz2 --acl public-read --region us-gov-west-1 --quiet"
+      }
       sh "tar -C /application/build/${envName} -cf /application/build/${envName}.tar.bz2 ."
       sh "aws s3 cp /application/build/${envName}.tar.bz2 s3://vetsgov-website-builds-s3-upload/${ref}/${envName}.tar.bz2 --acl public-read --region us-gov-west-1 --quiet"
     }

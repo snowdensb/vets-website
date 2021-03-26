@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { mapboxToken } from '../utils/mapboxToken';
 import {
+  clearSearchText,
   clearSearchResults,
   fetchVAFacility,
   searchWithBounds,
@@ -12,6 +13,8 @@ import {
   genSearchAreaFromCenter,
   updateSearchQuery,
   mapMoved,
+  geolocateUser,
+  clearGeocodeError,
 } from '../actions';
 import {
   facilitiesPpmsSuppressCommunityCare,
@@ -25,6 +28,7 @@ import SearchControls from '../components/SearchControls';
 import SearchResultsHeader from '../components/SearchResultsHeader';
 import { browserHistory } from 'react-router';
 import vaDebounce from 'platform/utilities/data/debounce';
+import environment from 'platform/utilities/environment';
 
 import mapboxClient from '../components/MapboxClient';
 import mbxGeo from '@mapbox/mapbox-sdk/services/geocoding';
@@ -51,6 +55,7 @@ let lastZoom = 3;
 let searchAreaSet = false;
 
 const mapboxGlContainer = 'mapbox-gl-container';
+const zoomMessageDivID = 'screenreader-zoom-message';
 
 const FacilitiesMap = props => {
   const [map, setMap] = useState(null);
@@ -86,13 +91,16 @@ const FacilitiesMap = props => {
 
   const updateUrlParams = params => {
     const { location, currentQuery } = props;
-
     const queryParams = {
       ...location.query,
       page: currentQuery.currentPage,
       address: currentQuery.searchString,
       facilityType: currentQuery.facilityType,
       serviceType: currentQuery.serviceType,
+      latitude: props.currentQuery.position?.latitude,
+      longitude: props.currentQuery.position?.longitude,
+      radius: props.currentQuery.radius && props.currentQuery.radius.toFixed(),
+      bounds: props.currentQuery.bounds,
       ...params,
     };
 
@@ -113,28 +121,11 @@ const FacilitiesMap = props => {
 
   const renderMarkers = locations => {
     if (locations.length === 0) return;
-    const currentLocation = props.currentQuery.position;
     const markersLetters = MARKER_LETTERS.values();
-    const sortedLocations = locations
-      .map(r => {
-        const distance = currentLocation
-          ? distBetween(
-              currentLocation.latitude,
-              currentLocation.longitude,
-              r.attributes.lat,
-              r.attributes.long,
-            )
-          : null;
-        return {
-          ...r,
-          distance,
-        };
-      })
-      .sort((resultA, resultB) => resultA.distance - resultB.distance);
 
     const locationBounds = new mapboxgl.LngLatBounds();
 
-    sortedLocations.forEach(loc => {
+    locations.forEach(loc => {
       const attrs = {
         letter: markersLetters.next().value,
       };
@@ -191,6 +182,24 @@ const FacilitiesMap = props => {
   };
 
   const handleSearchArea = () => {
+    // Since the Search this Area button doesn't use React,
+    // the normal react stuff doesn't work as it should,
+    // so we have to check for errors old-school.
+    // TODO: revisit this when we convert the Search This Area button to a React component.
+
+    // Location is not required here
+    const selectedFacilityType = document.querySelector(
+      '#facility-type-dropdown',
+    ).selectedOptions[0].value;
+
+    if (
+      selectedFacilityType === '' ||
+      (selectedFacilityType === 'provider' &&
+        document.querySelector('#service-type-ahead-input').value === '')
+    ) {
+      return;
+    }
+
     resetMapElements();
     const { currentQuery } = props;
     lastZoom = null;
@@ -245,18 +254,15 @@ const FacilitiesMap = props => {
       return;
     }
 
-    if (
-      calculateSearchArea() > MAX_SEARCH_AREA ||
-      !props.currentQuery.isValid ||
-      !props.currentQuery.mapMoved
-    ) {
+    // TODO: hide after new search
+    if (calculateSearchArea() > MAX_SEARCH_AREA) {
       searchAreaControl.style.display = 'none';
       return;
     }
 
     if (searchAreaControl.style.display === 'none') {
       searchAreaControl.style.display = 'block';
-      setFocus('#search-area-control');
+      setFocus('#search-area-control', false);
     }
 
     if (searchAreaControl && !searchAreaSet) {
@@ -265,10 +271,35 @@ const FacilitiesMap = props => {
     }
   };
 
+  const speakZoom = currentZoom => {
+    if (!environment.isProduction()) {
+      const screenreaderZoomElement = document.getElementById(zoomMessageDivID);
+
+      if (
+        screenreaderZoomElement &&
+        screenreaderZoomElement.innerText.length === 0
+      ) {
+        if (lastZoom < currentZoom) {
+          screenreaderZoomElement.innerText = `zooming in, level ${currentZoom}`;
+        }
+
+        if (lastZoom > currentZoom) {
+          screenreaderZoomElement.innerText = `zooming out, level ${currentZoom}`;
+        }
+      }
+    }
+  };
+
   const setMapEventHandlers = () => {
     map.on('dragend', () => {
       props.mapMoved();
       recordPanEvent(map.getCenter(), props.currentQuery);
+      activateSearchAreaControl();
+    });
+    map.on('zoom', () => {
+      const currentZoom = parseInt(map.getZoom(), 10);
+
+      speakZoom(currentZoom);
     });
     map.on('zoomend', () => {
       // Note: DO NOT call props.mapMoved() here
@@ -281,6 +312,7 @@ const FacilitiesMap = props => {
       }
 
       lastZoom = currentZoom;
+      activateSearchAreaControl();
     });
   };
 
@@ -310,9 +342,18 @@ const FacilitiesMap = props => {
       'top-left',
     );
     setSearchAreaPosition();
+    const mapBoxLogo = document.querySelector(
+      'a.mapboxgl-ctrl-logo.mapboxgl-compact',
+    );
+    if (mapBoxLogo) mapBoxLogo.setAttribute('tabIndex', -1);
     mapInit.on('load', () => {
+      // set up listeners on the zoom-in and zoom-out buttons:
       document.querySelectorAll('.mapboxgl-ctrl > button').forEach(button =>
         button.addEventListener('click', () => {
+          const screenreaderZoomElement = document.getElementById(
+            zoomMessageDivID,
+          );
+          screenreaderZoomElement.innerText = '';
           props.mapMoved();
         }),
       );
@@ -346,12 +387,15 @@ const FacilitiesMap = props => {
     return (
       <>
         <SearchControls
+          geolocateUser={props.geolocateUser}
+          clearGeocodeError={props.clearGeocodeError}
           currentQuery={currentQuery}
           onChange={props.updateSearchQuery}
           onSubmit={handleSearch}
           suppressCCP={props.suppressCCP}
           suppressPharmacies={props.suppressPharmacies}
           searchCovid19Vaccine={props.searchCovid19Vaccine}
+          clearSearchText={props.clearSearchText}
         />
         <div id="search-results-title" ref={searchResultTitleRef}>
           <SearchResultsHeader
@@ -359,6 +403,7 @@ const FacilitiesMap = props => {
             facilityType={facilityType}
             serviceType={serviceType}
             context={queryContext}
+            specialtyMap={props.specialties}
             inProgress={currentQuery.inProgress}
           />
         </div>
@@ -399,8 +444,13 @@ const FacilitiesMap = props => {
             </TabPanel>
             <TabPanel>
               <div
+                id={zoomMessageDivID}
+                aria-live="assertive"
+                className="sr-only"
+              />
+              <div
                 style={{ width: '100%', maxHeight: '55vh', height: '55vh' }}
-                id="mapbox-gl-container"
+                id={mapboxGlContainer}
               />
               {selectedResult && (
                 <div className="mobile-search-result">
@@ -431,15 +481,19 @@ const FacilitiesMap = props => {
     const facilityType = currentQuery.facilityType;
     const serviceType = currentQuery.serviceType;
     const queryContext = currentQuery.context;
+
     return (
       <div className="desktop-container">
         <SearchControls
+          geolocateUser={props.geolocateUser}
+          clearGeocodeError={props.clearGeocodeError}
           currentQuery={currentQuery}
           onChange={props.updateSearchQuery}
           onSubmit={handleSearch}
           suppressCCP={props.suppressCCP}
           suppressPharmacies={props.suppressPharmacies}
           searchCovid19Vaccine={props.searchCovid19Vaccine}
+          clearSearchText={props.clearSearchText}
         />
         <div id="search-results-title" ref={searchResultTitleRef}>
           <SearchResultsHeader
@@ -447,6 +501,7 @@ const FacilitiesMap = props => {
             facilityType={facilityType}
             serviceType={serviceType}
             context={queryContext}
+            specialtyMap={props.specialties}
             inProgress={currentQuery.inProgress}
           />
         </div>
@@ -461,7 +516,8 @@ const FacilitiesMap = props => {
             />
           </div>
         </div>
-        <div className="desktop-map-container" id="mapbox-gl-container" />
+        <div id={zoomMessageDivID} aria-live="assertive" className="sr-only" />
+        <div className="desktop-map-container" id={mapboxGlContainer} />
         <PaginationWrapper
           handlePageSelect={handlePageSelect}
           currentPage={currentPage}
@@ -502,15 +558,6 @@ const FacilitiesMap = props => {
   useEffect(
     () => {
       if (map) {
-        activateSearchAreaControl();
-      }
-    },
-    [props.currentQuery],
-  );
-
-  useEffect(
-    () => {
-      if (map) {
         setMapEventHandlers();
       }
     },
@@ -520,16 +567,13 @@ const FacilitiesMap = props => {
   useEffect(
     () => {
       const { currentQuery } = props;
-      const { searchArea, position, context, searchString } = currentQuery;
+      const { searchArea, context, searchString } = currentQuery;
       const coords = currentQuery.position;
       const radius = currentQuery.radius;
       const center = [coords.latitude, coords.longitude];
       // Search current area
       if (searchArea) {
         updateUrlParams({
-          location: `${position.latitude.toFixed(
-            2,
-          )},${position.longitude.toFixed(2)}`,
           context,
           searchString,
         });
@@ -555,9 +599,8 @@ const FacilitiesMap = props => {
 
     searchWithUrl();
 
-    // TODO - improve the geolocation feature with a more react approach
-    // https://github.com/department-of-veterans-affairs/vets-website/pull/14963
-    if (navigator.geolocation) {
+    // TODO - remove environment flag once the Use My Location link has been approved on staging
+    if (environment.isProduction() && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(currentPosition => {
         const input = document.getElementById('street-city-state-zip');
         if (input && !input.value) {
@@ -580,9 +623,6 @@ const FacilitiesMap = props => {
     () => {
       if (isSearching) {
         updateUrlParams({
-          location: `${props.currentQuery.position.latitude},${
-            props.currentQuery.position.longitude
-          }`,
           context: props.currentQuery.context,
           address: props.currentQuery.searchString,
         });
@@ -670,15 +710,19 @@ const mapStateToProps = state => ({
   results: state.searchResult.results,
   pagination: state.searchResult.pagination,
   selectedResult: state.searchResult.selectedResult,
+  specialties: state.searchQuery.specialties,
 });
 
 const mapDispatchToProps = {
+  geolocateUser,
+  clearGeocodeError,
   fetchVAFacility,
   updateSearchQuery,
   genBBoxFromAddress,
   genSearchAreaFromCenter,
   searchWithBounds,
   clearSearchResults,
+  clearSearchText,
   mapMoved,
 };
 export default connect(

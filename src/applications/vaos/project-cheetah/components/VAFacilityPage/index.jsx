@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { scrollAndFocus } from '../../../utils/scrollAndFocus';
-import LoadingIndicator from '@department-of-veterans-affairs/formation-react/LoadingIndicator';
+import LoadingIndicator from '@department-of-veterans-affairs/component-library/LoadingIndicator';
 import SchemaForm from 'platform/forms-system/src/js/components/SchemaForm';
 
 import * as actions from '../../redux/actions';
@@ -17,6 +17,7 @@ import SingleFacilityEligibilityCheckMessage from './SingleFacilityEligibilityCh
 import VAFacilityInfoMessage from './VAFacilityInfoMessage';
 import ResidentialAddress from './ResidentialAddress';
 import LoadingOverlay from '../../../components/LoadingOverlay';
+import { usePrevious } from 'platform/utilities/react-hooks';
 
 const initialSchema = {
   type: 'object',
@@ -37,14 +38,13 @@ const uiSchema = {
 };
 
 const pageKey = 'vaFacility';
-const pageTitle = 'Choose a VA location for your appointment';
+const pageTitle = 'Choose a location';
 
 function VAFacilityPage({
   address,
   canScheduleAtChosenFacility,
   facilitiesStatus,
   data,
-  hasDataFetchingError,
   hideEligibilityModal,
   clinicsStatus,
   noValidVAFacilities,
@@ -76,17 +76,33 @@ function VAFacilityPage({
     [openFacilityPage],
   );
 
+  useEffect(
+    () => {
+      scrollAndFocus();
+    },
+    [loadingFacilities],
+  );
+
+  const previouslyShowingModal = usePrevious(showEligibilityModal);
+  useEffect(
+    () => {
+      if (!showEligibilityModal && previouslyShowingModal) {
+        scrollAndFocus('.usa-button-primary');
+      }
+    },
+    [showEligibilityModal, previouslyShowingModal],
+  );
+
   const goBack = () => routeToPreviousAppointmentPage(history, pageKey);
 
   const goForward = () => routeToNextAppointmentPage(history, pageKey);
 
-  const title = (
-    <h1 className="vads-u-font-size--h2">
-      Choose a VA location for your project cheetah booking
-    </h1>
-  );
+  const title = <h1 className="vads-u-font-size--h2">{pageTitle}</h1>;
 
-  if (hasDataFetchingError) {
+  if (
+    facilitiesStatus === FETCH_STATUS.failed ||
+    (clinicsStatus === FETCH_STATUS.failed && singleValidVALocation)
+  ) {
     return (
       <div>
         {title}
@@ -175,7 +191,7 @@ function VAFacilityPage({
       {title}
       <p>
         Below is a list of VA locations where you’re registered that offer{' '}
-        project cheetah appointments.
+        COVID-19 vaccine appointments.
         {(sortByDistanceFromResidential || sortByDistanceFromCurrentLocation) &&
           ' Locations closest to you are at the top of the list.'}
       </p>

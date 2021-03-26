@@ -16,6 +16,7 @@ import {
   getPtsdChangeText,
   setActionTypes,
   filterServicePeriods,
+  cleanUpPersonsInvolved,
 } from '../submit-transformer';
 
 import maximalData from './fixtures/data/maximal-test.json';
@@ -106,6 +107,17 @@ describe('transformRelatedDisabilities', () => {
 describe('stringifyRelatedDisabilities', () => {
   it('should return an array of strings', () => {
     const formData = {
+      newDisabilities: [
+        {
+          condition: 'some condition name',
+        },
+        {
+          condition: 'another condition name',
+        },
+        {
+          condition: 'this condition is falsey!',
+        },
+      ],
       vaTreatmentFacilities: [
         {
           treatedDisabilityNames: {
@@ -116,19 +128,27 @@ describe('stringifyRelatedDisabilities', () => {
         },
       ],
     };
-    expect(stringifyRelatedDisabilities(formData)).to.deep.equal({
-      vaTreatmentFacilities: [
-        {
-          treatedDisabilityNames: [
-            'some condition name',
-            'another condition name',
-          ],
-        },
-      ],
-    });
+    expect(
+      stringifyRelatedDisabilities(formData).vaTreatmentFacilities,
+    ).to.deep.equal([
+      {
+        treatedDisabilityNames: [
+          'some condition name',
+          'another condition name',
+        ],
+      },
+    ]);
   });
-  it('will still add conditions to treatment names if they are not claimed', () => {
+  it('will not add conditions to treatment names if they are not claimed', () => {
     const formData = {
+      newDisabilities: [
+        {
+          condition: 'some condition name',
+        },
+        {
+          condition: 'this condition is falsey!',
+        },
+      ],
       vaTreatmentFacilities: [
         {
           treatedDisabilityNames: {
@@ -139,16 +159,13 @@ describe('stringifyRelatedDisabilities', () => {
         },
       ],
     };
-    expect(stringifyRelatedDisabilities(formData)).to.deep.equal({
-      vaTreatmentFacilities: [
-        {
-          treatedDisabilityNames: [
-            'some condition name',
-            'another condition name',
-          ],
-        },
-      ],
-    });
+    expect(
+      stringifyRelatedDisabilities(formData).vaTreatmentFacilities,
+    ).to.deep.equal([
+      {
+        treatedDisabilityNames: ['some condition name'],
+      },
+    ]);
   });
 });
 
@@ -267,4 +284,64 @@ describe('remove unreferenced reservedNationGuardService', () => {
   const processedServiceInfo = filterServicePeriods(formData);
   expect(processedServiceInfo.serviceInformation.reservesNationalGuardService)
     .to.be.undefined;
+});
+
+describe('cleanUpPersonsInvolved', () => {
+  it('should add injuryDeath and injuryDeathOther to empty entry', () => {
+    const incident = {
+      personsInvolved: [{ name: {}, 'view:individualAddMsg': {} }],
+    };
+    expect(cleanUpPersonsInvolved(incident)).to.deep.equal({
+      personsInvolved: [
+        {
+          name: {},
+          'view:individualAddMsg': {},
+          injuryDeath: 'other',
+          injuryDeathOther: 'Entry left blank',
+        },
+      ],
+    });
+  });
+  it('should only modify empty entries', () => {
+    const person = {
+      name: {
+        first: 'First',
+        middle: 'Person',
+        last: 'Name',
+      },
+      injuryDeath: 'killedInAction',
+      injuryDeathDate: '1900-01-01',
+      description: 'Description.',
+      'view:serviceMember': false,
+      'view:individualAddMsg': {},
+    };
+    const incident = {
+      personsInvolved: [
+        person,
+        {
+          name: {},
+          'view:individualAddMsg': {},
+        },
+        {
+          injuryDeath: 'other',
+          description: 'should not change',
+        },
+      ],
+    };
+    expect(cleanUpPersonsInvolved(incident)).to.deep.equal({
+      personsInvolved: [
+        person,
+        {
+          name: {},
+          'view:individualAddMsg': {},
+          injuryDeath: 'other',
+          injuryDeathOther: 'Entry left blank',
+        },
+        {
+          injuryDeath: 'other',
+          description: 'should not change',
+        },
+      ],
+    });
+  });
 });

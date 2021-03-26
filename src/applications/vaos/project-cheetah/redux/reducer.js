@@ -14,6 +14,9 @@ import {
   FORM_PAGE_FACILITY_OPEN,
   FORM_PAGE_FACILITY_OPEN_FAILED,
   FORM_PAGE_FACILITY_OPEN_SUCCEEDED,
+  FORM_PAGE_CONTACT_FACILITIES_OPEN,
+  FORM_PAGE_CONTACT_FACILITIES_OPEN_SUCCEEDED,
+  FORM_PAGE_CONTACT_FACILITIES_OPEN_FAILED,
   FORM_FETCH_CLINICS,
   FORM_FETCH_CLINICS_FAILED,
   FORM_FETCH_CLINICS_SUCCEEDED,
@@ -25,11 +28,16 @@ import {
   FORM_PAGE_FACILITY_SORT_METHOD_UPDATED,
   FORM_REQUEST_CURRENT_LOCATION,
   FORM_CALENDAR_DATA_CHANGED,
-  FORM_CALENDAR_2_DATA_CHANGED,
   FORM_CALENDAR_FETCH_SLOTS,
   FORM_CALENDAR_FETCH_SLOTS_FAILED,
   FORM_CALENDAR_FETCH_SLOTS_SUCCEEDED,
+  FORM_PREFILL_CONTACT_INFO,
 } from './actions';
+
+import {
+  STARTED_NEW_VACCINE_FLOW,
+  VACCINE_FORM_SUBMIT_SUCCEEDED,
+} from '../../redux/sitewide';
 
 import { FACILITY_SORT_METHODS, FETCH_STATUS } from '../../utils/constants';
 import { distanceBetween } from '../../utils/address';
@@ -48,6 +56,7 @@ const initialState = {
     appointmentSlotsStatus: FETCH_STATUS.notStarted,
     availableSlots: null,
     fetchedAppointmentSlotMonths: [],
+    requestLocationStatus: FETCH_STATUS.notStarted,
   },
   submitStatus: FETCH_STATUS.notStarted,
   submitErrorReason: null,
@@ -148,6 +157,7 @@ export default function projectCheetahReducer(state = initialState, action) {
         },
       };
     }
+    case FORM_PAGE_CONTACT_FACILITIES_OPEN:
     case FORM_PAGE_FACILITY_OPEN: {
       return {
         ...state,
@@ -233,6 +243,7 @@ export default function projectCheetahReducer(state = initialState, action) {
         },
       };
     }
+    case FORM_PAGE_CONTACT_FACILITIES_OPEN_FAILED:
     case FORM_PAGE_FACILITY_OPEN_FAILED: {
       return {
         ...state,
@@ -385,7 +396,10 @@ export default function projectCheetahReducer(state = initialState, action) {
     case FORM_REQUEST_CURRENT_LOCATION_FAILED: {
       return {
         ...state,
-        requestLocationStatus: FETCH_STATUS.failed,
+        newBooking: {
+          ...state.newBooking,
+          requestLocationStatus: FETCH_STATUS.failed,
+        },
       };
     }
     case FORM_CLINIC_PAGE_OPENED_SUCCEEDED: {
@@ -426,11 +440,36 @@ export default function projectCheetahReducer(state = initialState, action) {
         },
       };
     }
+    case FORM_PREFILL_CONTACT_INFO: {
+      const data = state.newBooking.data;
+      return {
+        ...state,
+        newBooking: {
+          ...state.newBooking,
+          data: {
+            ...data,
+            phoneNumber: data.phoneNumber || action.phoneNumber,
+            email: data.email || action.email,
+          },
+        },
+      };
+    }
     case FORM_SUBMIT:
       return {
         ...state,
         submitStatus: FETCH_STATUS.loading,
       };
+    case VACCINE_FORM_SUBMIT_SUCCEEDED:
+      return {
+        ...state,
+        submitStatus: FETCH_STATUS.succeeded,
+        submitStatusVaos400: false,
+      };
+    case STARTED_NEW_VACCINE_FLOW: {
+      return {
+        ...initialState,
+      };
+    }
     case FORM_SUBMIT_FAILED:
       return {
         ...state,
@@ -439,7 +478,7 @@ export default function projectCheetahReducer(state = initialState, action) {
       };
     case FORM_CALENDAR_FETCH_SLOTS: {
       return {
-        ...state, // TODO newBooking
+        ...state,
         newBooking: {
           ...state.newBooking,
           appointmentSlotsStatus: FETCH_STATUS.loading,
@@ -448,7 +487,7 @@ export default function projectCheetahReducer(state = initialState, action) {
     }
     case FORM_CALENDAR_FETCH_SLOTS_SUCCEEDED: {
       return {
-        ...state, // TODO newBooking
+        ...state,
         newBooking: {
           ...state.newBooking,
           appointmentSlotsStatus: FETCH_STATUS.succeeded,
@@ -459,7 +498,7 @@ export default function projectCheetahReducer(state = initialState, action) {
     }
     case FORM_CALENDAR_FETCH_SLOTS_FAILED: {
       return {
-        ...state, // TODO newBooking
+        ...state,
         newBooking: {
           ...state.newBooking,
           appointmentSlotsStatus: FETCH_STATUS.failed,
@@ -473,23 +512,52 @@ export default function projectCheetahReducer(state = initialState, action) {
           ...state.newBooking,
           data: {
             ...state.newBooking.data,
-            selectedDates: action.selectedDates,
+            date1: action.selectedDates,
           },
         },
       };
     }
-    case FORM_CALENDAR_2_DATA_CHANGED: {
+    case FORM_PAGE_CONTACT_FACILITIES_OPEN_SUCCEEDED: {
+      let facilities = action.facilities;
+      const address = action.address;
+      const hasResidentialCoordinates =
+        !!action.address?.latitude && !!action.address?.longitude;
+      const sortMethod = hasResidentialCoordinates
+        ? FACILITY_SORT_METHODS.distanceFromResidential
+        : FACILITY_SORT_METHODS.alphabetical;
+
+      if (hasResidentialCoordinates && facilities.length) {
+        facilities = facilities
+          .map(facility => {
+            const distanceFromResidentialAddress = distanceBetween(
+              address.latitude,
+              address.longitude,
+              facility.position.latitude,
+              facility.position.longitude,
+            );
+
+            return {
+              ...facility,
+              legacyVAR: {
+                ...facility.legacyVAR,
+                distanceFromResidentialAddress,
+              },
+            };
+          })
+          .sort((a, b) => a.legacyVAR[sortMethod] - b.legacyVAR[sortMethod]);
+      }
+
       return {
         ...state,
         newBooking: {
           ...state.newBooking,
-          data: {
-            ...state.newBooking.data,
-            selectedDates2: action.selectedDates2,
-          },
+          facilities,
+          facilitiesStatus: FETCH_STATUS.succeeded,
+          facilityPageSortMethod: sortMethod,
         },
       };
     }
+
     default:
       return state;
   }
