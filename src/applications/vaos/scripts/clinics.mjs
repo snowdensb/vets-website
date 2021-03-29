@@ -21,9 +21,10 @@ if (process.argv[2] === 'update') {
 
 let matchingClinics = [];
 fs.readdirSync('./src/applications/vaos/scripts/clinics').forEach(f => {
-const clinics = JSON.parse(fs.readFileSync(path.join('./src/applications/vaos/scripts/clinics', f), 'utf8'));
-  const covidClinics = clinics.data.filter(clinic => clinic.directSchedulingPatient && clinic.secondaryStopCode === 710 && (!!clinic.reactivationDate || !clinic.inactivationDate));
-  matchingClinics = matchingClinics.concat(covidClinics);
+  const clinics = JSON.parse(fs.readFileSync(path.join('./src/applications/vaos/scripts/clinics', f), 'utf8'));
+  const noneClinics = clinics.data.filter(clinic => clinic.displayAppointment &&
+    (clinic.patientFriendlyLocationName?.toUpperCase() === 'N/A' || clinic.patientFriendlyLocationName?.toUpperCase() === 'NONE') && (!!clinic.reactivationDate || !clinic.inactivationDate));
+  matchingClinics = matchingClinics.concat(noneClinics);
 });
 
 // matchingClinics.filter(c => c.displayAppointment).forEach(c => console.log(c.primaryStopCode));
@@ -35,7 +36,7 @@ fs.writeFileSync(
   [header]
     .concat(
       matchingClinics.map(row => {
-        return `${row.sta6aid || row.facilityId},${row.locationIEN || ''},${row.locationName},${row.patientFriendlyLocationName || ''},${row.primaryStopCode || ''},${row.secondaryStopCode || ''},${row.displayAppointment || false},${row.directSchedulingPatient || false}`;
+        return `${row.sta6aid || row.facilityId},${row.locationIEN || ''},${row.locationName},${row.patientFriendlyLocationName || ''}`
       }),
     )
     .join('\n'),
