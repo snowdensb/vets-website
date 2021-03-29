@@ -19,7 +19,7 @@ function createFileObj(page, layout) {
     isDrupalPage: true,
     layout,
     contents: Buffer.from('<!-- Drupal-provided data -->'),
-    debug: JSON.stringify(page, null, 4),
+    // debug: JSON.stringify(page, null, 4),
     private: privStatus,
   };
 }
@@ -267,7 +267,7 @@ function getFacilitySidebar(page, contentData) {
       //   ),
       // );
       //
-      //   throw new Error(errorMessage);
+      // throw new Error(errorMessage);
     }
   }
 

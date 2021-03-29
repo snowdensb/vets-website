@@ -163,6 +163,7 @@ module.exports = function registerFilters() {
     try {
       return JSON.parse(jsonString);
     } catch (error) {
+      // Ignore errors in test data
       return {};
     }
   };

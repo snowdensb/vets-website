@@ -21,7 +21,9 @@ const {
 const { addHubIconField } = require('./benefit-hub');
 const { addHomeContent } = require('./home');
 
-const DRUPAL_CACHE_DIR = 'drupal/pages';
+const DRUPAL_CACHE_DIR = path.join('drupal', 'queries');
+const DRUPAL_PAGE_CACHE_DIR = 'pages';
+const DRUPAL_OTHER_CACHE_DIR = 'other';
 const DRUPAL_HUB_NAV_FILENAME = 'hubNavNames.json';
 
 // If "--pull-drupal" is passed into the build args, then the build
@@ -136,25 +138,45 @@ function pipeDrupalPagesIntoMetalsmith(contentData, files) {
 }
 
 function createJSONCacheFiles(cacheDir, drupalPages) {
+  const pageCachePath = path.join(cacheDir, DRUPAL_PAGE_CACHE_DIR);
+  const otherCachePath = path.join(cacheDir, DRUPAL_OTHER_CACHE_DIR);
   fs.emptyDirSync(cacheDir);
-  drupalPages.data.nodeQuery.entities
-    .filter(page => page.entityId)
-    .forEach(page => {
-      const fullPath = path.join(cacheDir, page.entityId);
-      fs.outputJsonSync(fullPath, page, { spaces: 2 });
+
+  // Store each nodeQuery entity in a separate file to avoid hitting size limit
+  drupalPages.data.nodeQuery.entities.forEach(page => {
+    const fullPath = path.join(pageCachePath, page.entityId);
+    fs.outputJsonSync(fullPath, page, { spaces: 2 });
+  });
+
+  // The other queries are smaller so we can store the entire query in a file
+  Object.keys(drupalPages.data)
+    .filter(queryName => queryName !== 'nodeQuery')
+    .forEach(queryName => {
+      const fullPath = path.join(otherCachePath, queryName);
+      fs.outputJsonSync(fullPath, drupalPages.data[queryName], { spaces: 2 });
     });
 }
 
 function loadJSONCacheFiles(cacheDir) {
-  const entities = [];
+  const pageCachePath = path.join(cacheDir, DRUPAL_PAGE_CACHE_DIR);
+  const otherCachePath = path.join(cacheDir, DRUPAL_OTHER_CACHE_DIR);
+  const result = { data: { nodeQuery: { entities: [] } } };
 
-  const files = fs.readdirSync(cacheDir);
+  // Load page query cache, one file per page
+  const files = fs.readdirSync(pageCachePath);
   files.forEach(file => {
-    const contents = fs.readJsonSync(path.join(cacheDir, file));
-    entities.push(contents);
+    const contents = fs.readJsonSync(path.join(pageCachePath, file));
+    result.data.nodeQuery.entities.push(contents);
   });
 
-  return { data: { nodeQuery: { entities } } };
+  // Load other query caches, one file per query
+  const otherFiles = fs.readdirSync(otherCachePath);
+  otherFiles.forEach(file => {
+    const contents = fs.readJsonSync(path.join(otherCachePath, file));
+    result.data[file] = contents;
+  });
+
+  return result;
 }
 
 /**
@@ -207,7 +229,6 @@ async function getContentViaGraphQL(buildOptions) {
     log('Attempting to load Drupal content from cache...');
     log(`To pull latest, run with "--${PULL_DRUPAL_BUILD_ARG}" flag.`);
 
-    // eslint-disable-next-line import/no-dynamic-require
     drupalPages = loadJSONCacheFiles(drupalCacheDir);
   }
 

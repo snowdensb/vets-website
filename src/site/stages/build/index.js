@@ -237,15 +237,18 @@ function build(BUILD_OPTIONS) {
     'Generate navigation',
   );
 
-  ['a-c', 'd-f', 'g-i', 'j-l', 'm-o', 'p-r', 's-u', 'v-z'].forEach(range => {
+  // Split the layout step by letter to avoid "too many open files" errors
+  // (metalsmith) and timeouts (tinyliquid)
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  alphabet.forEach(letter => {
     smith.use(
       layouts({
         engine: 'liquid',
         directory: BUILD_OPTIONS.layouts,
         // Only apply layouts to markdown and html files.
-        pattern: `**/[${range}]*/*.{md,html}`,
+        pattern: `**/${letter}*/*.{md,html}`,
       }),
-      `Apply layouts ${range}`,
+      `Apply layouts ${letter.toUpperCase()}`,
     );
   });
 
@@ -284,7 +287,7 @@ function build(BUILD_OPTIONS) {
 
   /* eslint-disable no-console */
   smith.build(err => {
-    if (err) console.log('Would have thrown: ', err);
+    if (err) throw err;
     if (BUILD_OPTIONS.watch) {
       console.log('Metalsmith build finished!');
     } else {

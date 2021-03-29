@@ -27,6 +27,7 @@ function checkForCMSUrls(BUILD_OPTIONS) {
       console.log(filesWithBadUrls.join('\n'));
 
       if (BUILD_OPTIONS.buildtype === ENVIRONMENTS.VAGOVPROD) {
+        // Disabled due to test data with internal URLs
         // throw new Error('Pages found that reference internal CMS urls');
       }
     }
