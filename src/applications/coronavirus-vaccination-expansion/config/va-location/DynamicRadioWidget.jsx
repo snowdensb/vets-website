@@ -81,7 +81,7 @@ export function DynamicRadioWidget(props) {
           } ${location.attributes.state}`}</p>
         </>
       ),
-      value: location.attributes.name,
+      value: location.id,
     }));
 
     locationsList = (
