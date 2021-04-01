@@ -38,6 +38,8 @@ export default Object.freeze({
   gibctSchoolRatings: 'gibctSchoolRatings',
   form996HigherLevelReview: 'form996HigherLevelReview',
   debtLettersShowLetters: 'debtLettersShowLetters',
+  showFinancialStatusReportWizard: 'showFinancialStatusReportWizard',
+  showFinancialStatusReport: 'showFinancialStatusReport',
   form526BDD: 'form526BenefitsDeliveryAtDischarge',
   showEduBenefits1995Wizard: 'show_edu_benefits_1995_wizard',
   showEduBenefits5495Wizard: 'show_edu_benefits_5495_wizard',
@@ -77,6 +79,8 @@ export default Object.freeze({
   covidVaccineUpdatesForm: 'covid_vaccine_registration_frontend',
   covidVaccineUpdatesDisableAuth:
     'covid_vaccine_registration_frontend_hide_auth',
+  covidVaccineUpdatesEnableExpandedEligibility:
+    'covid_vaccine_registration_frontend_enable_expanded_eligibility',
   showFindFormsResultsLinkToFormDetailPages: 'find_forms_mvp_enhancement',
   yellowRibbonEnhancements: 'yellow_ribbon_mvp_enhancement',
   evssUploadLimit150Mb: 'evss_upload_limit_150mb',
@@ -86,4 +90,5 @@ export default Object.freeze({
   subform89404192: 'subform_8940_4192',
   dependencyVerification: 'dependency_verification',
   form10182Nod: 'form10182_nod',
+  canUpload1010cgPOA: 'can_upload_10_10cg_poa',
 });

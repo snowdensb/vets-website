@@ -554,7 +554,7 @@ module.exports = function registerFilters() {
 
   liquid.filters.detectLang = url => {
     if (url?.endsWith('-esp')) return 'es';
-    if (url?.endsWith('-tag')) return 'tag';
+    if (url?.endsWith('-tag')) return 'tl';
     return 'en';
   };
 
@@ -693,5 +693,10 @@ module.exports = function registerFilters() {
     const tagList = [...topics, ...audiences];
 
     return _.sortBy(tagList, 'name');
+  };
+
+  liquid.filters.replace = (string, oldVal, newVal) => {
+    const regex = new RegExp(oldVal, 'g');
+    return string.replace(regex, newVal);
   };
 };

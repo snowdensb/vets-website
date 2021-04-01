@@ -127,7 +127,9 @@ export function SelectDate1Page({
         scrollAndFocus();
       }
     },
-    [isInitialLoad, loadingSlots, appointmentSlotsStatus],
+    // Intentionally leaving isInitialLoad off, because it should trigger updates, it just
+    // determines which update is made
+    [loadingSlots, appointmentSlotsStatus],
   );
 
   useEffect(
@@ -237,7 +239,6 @@ const mapDispatchToProps = {
   onCalendarChange: actions.onCalendarChange,
   routeToNextAppointmentPage: actions.routeToNextAppointmentPage,
   routeToPreviousAppointmentPage: actions.routeToPreviousAppointmentPage,
-  startRequestAppointmentFlow: actions.startAppointmentFlow,
 };
 
 export default connect(
