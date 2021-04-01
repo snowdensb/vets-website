@@ -19,25 +19,56 @@ if (process.argv[2] === 'update') {
   }
 }
 
+const siteMap = {
+  '523': [],
+  '523A5': [],
+  '523A4': [],
+  '636A8': [],
+  '614': [],
+  '612A4': [],
+  '612GF': [],
+  '612GG': [],
+  '612GH': [],
+  '612GI': [],
+  '612BY': [],
+  '612B4': [],
+  '612GD': [],
+  '612GJ': [],
+  '612GK': [],
+  '612GE': [],
+};
+
 let matchingClinics = [];
 fs.readdirSync('./src/applications/vaos/scripts/clinics').forEach(f => {
   const clinics = JSON.parse(fs.readFileSync(path.join('./src/applications/vaos/scripts/clinics', f), 'utf8'));
-  const noneClinics = clinics.data.filter(clinic => clinic.displayAppointment &&
-    (clinic.patientFriendlyLocationName?.toUpperCase() === 'N/A' || clinic.patientFriendlyLocationName?.toUpperCase() === 'NONE') && (!!clinic.reactivationDate || !clinic.inactivationDate));
-  matchingClinics = matchingClinics.concat(noneClinics);
+  clinics.data.forEach(clinic => {
+    if (siteMap[clinic.sta6aid] && clinic.nationalChar4 === 'CDQC' &&
+      clinic.displayAppointment &&
+      clinic.directSchedulingPatient && 
+      (!!clinic.reactivationDate || !clinic.inactivationDate)) {
+      siteMap[clinic.sta6aid].push(clinic);
+    }
+  });
+
+  // const noneClinics = clinics.data.filter(clinic => clinic.displayAppointment &&
+  //   (clinic.patientFriendlyLocationName?.toUpperCase() === 'N/A' || clinic.patientFriendlyLocationName?.toUpperCase() === 'NONE') && (!!clinic.reactivationDate || !clinic.inactivationDate));
+  // matchingClinics = matchingClinics.concat(noneClinics);
 });
 
+Object.entries(siteMap).forEach(([facility, clinics]) => {
+  console.log(`${facility}: ${clinics.length}`);
+});
 // matchingClinics.filter(c => c.displayAppointment).forEach(c => console.log(c.primaryStopCode));
 // console.log(matchingClinics.filter(c => c.displayAppointment).length);
 
-const header = `facility id,clinic id,name,friendly name, primary stop code, secondary stop code, display to patients, direct scheduling, friendly name`;
-fs.writeFileSync(
-  './clinics.csv',
-  [header]
-    .concat(
-      matchingClinics.map(row => {
-        return `${row.sta6aid || row.facilityId},${row.locationIEN || ''},${row.locationName},${row.patientFriendlyLocationName || ''}`
-      }),
-    )
-    .join('\n'),
-);
+// const header = `facility id,clinic id,name,friendly name, primary stop code, secondary stop code, display to patients, direct scheduling, friendly name`;
+// fs.writeFileSync(
+//   './clinics.csv',
+//   [header]
+//     .concat(
+//       matchingClinics.map(row => {
+//         return `${row.sta6aid || row.facilityId},${row.locationIEN || ''},${row.locationName},${row.patientFriendlyLocationName || ''}`
+//       }),
+//     )
+//     .join('\n'),
+// );
