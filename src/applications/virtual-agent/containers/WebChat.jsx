@@ -55,7 +55,7 @@ export default function WebChat() {
       <div
         className={'vads-l-row'}
         data-testid={'webchat'}
-        style={{ height: '500px' }}
+        style={{ height: '680px' }}
       >
         <ReactWebChat
           styleOptions={{ hideUploadButton: true }}
