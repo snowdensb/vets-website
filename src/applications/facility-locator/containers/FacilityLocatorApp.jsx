@@ -69,8 +69,6 @@ class FacilityLocatorApp extends React.Component {
           {this.renderBreadcrumbs(location, selectedResult)}
         </Breadcrumbs>
         <div className="row">
-          <button />
-
           <DowntimeNotification
             appTitle="facility locator tool"
             dependencies={[externalServices.arcgis]}

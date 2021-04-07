@@ -16,6 +16,7 @@ class IntroductionPage extends React.Component {
     return (
       <div className="schemaform-intro">
         <FormTitle title="GI Bill® School Feedback Tool" />
+        <button />
         <p>
           If you have an issue or complaint about a school or training facility
           that’s eligible to receive GI Bill benefits, you can submit feedback
