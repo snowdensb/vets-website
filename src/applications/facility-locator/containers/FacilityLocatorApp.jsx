@@ -69,10 +69,7 @@ class FacilityLocatorApp extends React.Component {
           {this.renderBreadcrumbs(location, selectedResult)}
         </Breadcrumbs>
         <div className="row">
-          <input
-            type="text"
-            placeholder="should be axe error because no label"
-          />
+          <button />
 
           <DowntimeNotification
             appTitle="facility locator tool"
