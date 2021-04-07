@@ -56,16 +56,19 @@ function sitemapURLs() {
 
 function runTests(client, segment, only508List) {
   segment.forEach(url => {
+    console.log('-----------------------------'); // eslint-disable-line no-console
     console.time(url); // eslint-disable-line no-console
     const only508 = only508List.filter(path => url.endsWith(path)).length > 0;
+    console.log({ only508 }); // eslint-disable-line no-console
+    const selector = 'document';
+    const config = only508
+      ? { scope: url, rules: ['section508'] }
+      : { scope: url };
     client
       .perform(() => {})
       .openUrl(url)
       .waitForElementVisible('body', Timeouts.normal)
-      .axeCheck(
-        'document',
-        only508 ? { scope: url, rules: ['section508'] } : { scope: url },
-      );
+      .axeCheck(selector, config);
     console.timeEnd(url); // eslint-disable-line no-console
   });
 }
