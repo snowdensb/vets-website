@@ -132,7 +132,7 @@ function checkAllPages(mobile = false) {
     .should('eq', 'H2');
 }
 
-for (let i = 0; i < 200; i += 1) {
+for (let i = 0; i < 400; i += 1) {
   describe('Profile', () => {
     beforeEach(() => {
       disableFTUXModals();
