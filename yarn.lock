@@ -5838,11 +5838,6 @@ debug@^4.1.1:
   dependencies:
     ms "2.1.2"
 
-debug@~0.7.4:
-  version "0.7.4"
-  resolved "https://registry.npmjs.org/debug/-/debug-0.7.4.tgz"
-  integrity sha1-BuHqgILCyxTjmAbiLi9vdX+Srzk=
-
 decamelize-keys@^1.0.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/decamelize-keys/-/decamelize-keys-1.1.0.tgz"
@@ -12738,15 +12733,15 @@ metalsmith-navigation@^0.2.9:
     lodash.sortby "^3.1.1"
     merge "^1.1.3"
 
-metalsmith-permalinks@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.npmjs.org/metalsmith-permalinks/-/metalsmith-permalinks-0.5.0.tgz"
-  integrity sha1-D+xbHwaHgowZjTO11HnMHOxLGh8=
+metalsmith-permalinks@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/metalsmith-permalinks/-/metalsmith-permalinks-1.0.0.tgz#3f8f5b6269f2a1cb729867d365dfd9ba7cc1eebf"
+  integrity sha512-VGQjs7iIJYDHZDSRAaGCu7W+QJRI7o0/I7agrHAT7YVgYKyUolQJ5+7Rl9YbtuQMD0X6Is6QPVodoVLvryaRvA==
   dependencies:
-    debug "~0.7.4"
+    debug "^3.1.0"
     moment "^2.5.1"
-    slug-component "~1.1.0"
-    substitute "https://github.com/segmentio/substitute/archive/0.0.1.tar.gz"
+    slug "^0.9.1"
+    substitute "https://github.com/segmentio/substitute/archive/0.1.0.tar.gz"
 
 metalsmith-sitemap@^1.0.0:
   version "1.2.2"
@@ -17573,10 +17568,12 @@ slice-ansi@^2.1.0:
     astral-regex "^1.0.0"
     is-fullwidth-code-point "^2.0.0"
 
-slug-component@~1.1.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/slug-component/-/slug-component-1.1.0.tgz"
-  integrity sha1-IkKQoEWRv5rAi5xiLToU9D46Dfc=
+slug@^0.9.1:
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/slug/-/slug-0.9.4.tgz#fad5f1ef33150830c7688cd8500514576eccabd8"
+  integrity sha512-3YHq0TeJ4+AIFbJm+4UWSQs5A1mmeWOTQqydW3OoPmQfNKxlO96NDRTIrp+TBkmvEsEFrd+Z/LXw8OD/6OlZ5g==
+  dependencies:
+    unicode ">= 0.3.1"
 
 smart-buffer@^1.0.13:
   version "1.1.15"
@@ -18308,9 +18305,10 @@ subarg@^1.0.0:
   dependencies:
     minimist "^1.1.0"
 
-"substitute@https://github.com/segmentio/substitute/archive/0.0.1.tar.gz":
-  version "0.0.1"
-  resolved "https://github.com/segmentio/substitute/archive/0.0.1.tar.gz#432866985b03c3b0d3f71ac63d1ae1a18dfaf47d"
+"substitute@https://github.com/segmentio/substitute/archive/0.1.0.tar.gz":
+  version "0.1.0"
+  uid "8fc8aa4d0fc6d26812a2b7f54022f647f7629d99"
+  resolved "https://github.com/segmentio/substitute/archive/0.1.0.tar.gz#8fc8aa4d0fc6d26812a2b7f54022f647f7629d99"
 
 sudo-block@^1.1.0:
   version "1.2.0"
@@ -19204,6 +19202,11 @@ unicode-property-aliases-ecmascript@^1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/unicode-property-aliases-ecmascript/-/unicode-property-aliases-ecmascript-1.0.4.tgz"
 
+"unicode@>= 0.3.1":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/unicode/-/unicode-14.0.0.tgz#d821f900705787eba935859518d5482e4b7117de"
+  integrity sha512-BjinxTXkbm9Jomp/YBTMGusr4fxIG67fNGShHIRAL16Ur2GJTq2xvLi+sxuiJmInCmwqqev2BCFKyvbfp/yAkg==
+
 union-value@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/union-value/-/union-value-1.0.0.tgz"
@@ -19596,7 +19599,7 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
-    
+
 "vets-json-schema@https://github.com/department-of-veterans-affairs/vets-json-schema.git#7a747b65016e57625341c64f3eee5b1d19ad2605":
   version "20.1.0"
   resolved "https://github.com/department-of-veterans-affairs/vets-json-schema.git#7a747b65016e57625341c64f3eee5b1d19ad2605"
