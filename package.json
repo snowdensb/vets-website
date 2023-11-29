@@ -222,7 +222,7 @@
     "jest": "^23.6.0",
     "jest-image-snapshot": "^4.0.2",
     "jsdoc": "^3.6.6",
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.0.0",
     "json2csv": "^4.2.1",
     "jsonschema": "^1.1.1",
     "metalsmith-assets": "^0.1.0",
