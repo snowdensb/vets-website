@@ -2469,8 +2469,9 @@ address@^1.0.1:
   integrity sha512-aT6camzM4xEA54YVJYSqxz1kv4IHnQZRtThJJHhUMRExaU5spC7jX5ugSwTaTgJliIgs4VhZOk7htClvQ/LmRA==
 
 agent-base@2:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/agent-base/-/agent-base-2.0.1.tgz"
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-2.1.1.tgz#d6de10d5af6132d5bd692427d46fc538539094c7"
+  integrity sha512-oDtZV740o3fr5oJtPLOsgH2hl2TRPscNXIx4VzzBwVlXVkv8RHm7XXqGAYg8t20+Gwu6LNDnx8HRMGqVGPZ8Vw==
   dependencies:
     extend "~3.0.0"
     semver "~5.0.1"
@@ -2486,6 +2487,13 @@ agent-base@6:
   integrity sha512-j1Q7cSCqN+AwrmDd+pzgqc0/NpC655x2bUf5ZjRIO77DcNBFmh+OgRNzF6OKdCC9RSCb19fGd99+bhXFdkRNqw==
   dependencies:
     debug "4"
+
+agent-base@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-4.3.0.tgz#8165f01c436009bccad0b1d122f05ed770efc6ee"
+  integrity sha512-salcGninV0nPrwpGNn4VTXBb1SOuXQBiqbrNXoeizJsHrsL6ERFM2Ne3JUSBWRE6aeNJI2ROP/WEEIDUiDe3cg==
+  dependencies:
+    es6-promisify "^5.0.0"
 
 aggregate-error@^3.0.0:
   version "3.0.1"
@@ -6902,10 +6910,17 @@ es6-object-assign@^1.1.0:
   resolved "https://registry.npmjs.org/es6-object-assign/-/es6-object-assign-1.1.0.tgz"
   integrity sha1-wsNYJlYkfDnqEHyx5mUrb58kUjw=
 
-es6-promise@^4.1.1, es6-promise@^4.2.5:
+es6-promise@^4.0.3, es6-promise@^4.1.1, es6-promise@^4.2.5:
   version "4.2.8"
   resolved "https://registry.npmjs.org/es6-promise/-/es6-promise-4.2.8.tgz"
   integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
+
+es6-promisify@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/es6-promisify/-/es6-promisify-5.0.0.tgz#5109d62f3e56ea967c4b63505aef08291c8a5203"
+  integrity sha512-C+d6UdsYDk0lMebHNR4S2NybQMMngAOnOwYBQjTOiv0MkoJMP0Myw2mgpDLBcpfCmRLxyFqYhS/CfOENq4SJhQ==
+  dependencies:
+    es6-promise "^4.0.3"
 
 es6-set@~0.1.5:
   version "0.1.5"
@@ -9541,7 +9556,7 @@ https-browserify@~0.0.0:
   resolved "https://registry.npmjs.org/https-browserify/-/https-browserify-0.0.1.tgz"
   integrity sha1-P5E2XKvmC3ftDruiS0VOPgnZWoI=
 
-https-proxy-agent@1, https-proxy-agent@^1.0.0:
+https-proxy-agent@1:
   version "1.0.0"
   resolved "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-1.0.0.tgz"
   integrity sha1-NffabEjOTdv6JkiRrFk+5f+GceY=
@@ -9549,6 +9564,14 @@ https-proxy-agent@1, https-proxy-agent@^1.0.0:
     agent-base "2"
     debug "2"
     extend "3"
+
+https-proxy-agent@^2.2.1:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-2.2.4.tgz#4ee7a737abd92678a293d9b34a1af4d0d08c787b"
+  integrity sha512-OmvfoQ53WLjtA9HeYP9RNrWMJzzAz1JGaSFr1nijg0PVR1JaD/xbJq1mdEIIlxGpXp9eSe/O2LgU9DJmTPd0Eg==
+  dependencies:
+    agent-base "^4.3.0"
+    debug "^3.1.0"
 
 https-proxy-agent@^4.0.0:
   version "4.0.0"
@@ -13309,8 +13332,8 @@ ms@0.7.1:
 
 ms@2.0.0:
   version "2.0.0"
-  resolved "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz"
-  integrity sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
+  resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+  integrity sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==
 
 ms@2.1.1:
   version "2.1.1"
@@ -17112,10 +17135,11 @@ sass-loader@^8.0.2:
     semver "^6.3.0"
 
 saucelabs@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/saucelabs/-/saucelabs-1.4.0.tgz"
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/saucelabs/-/saucelabs-1.5.0.tgz#9405a73c360d449b232839919a86c396d379fd9d"
+  integrity sha512-jlX3FGdWvYf4Q3LFfFWS1QvPg3IGCGWxIc8QBFdPTbpTJnt/v17FHXYVAn7C8sHf1yUXo2c7yIM0isDryfYtHQ==
   dependencies:
-    https-proxy-agent "^1.0.0"
+    https-proxy-agent "^2.2.1"
 
 sax@^1.2.4, sax@~1.2.4:
   version "1.2.4"
@@ -17255,8 +17279,8 @@ semver@^7.1.3, semver@^7.2.1, semver@^7.3.2:
 
 semver@~5.0.1:
   version "5.0.3"
-  resolved "https://registry.npmjs.org/semver/-/semver-5.0.3.tgz"
-  integrity sha1-d0Zt5YnNXTyV8TiqeLxWmjy10no=
+  resolved "https://registry.yarnpkg.com/semver/-/semver-5.0.3.tgz#77466de589cd5d3c95f138aa78bc569a3cb5d27a"
+  integrity sha512-5OkOBiw69xqmxOFIXwXsiY1HlE+om8nNptg1ZIf95fzcnfgOv2fLm7pmmGbRJsjJIqPpW5Kwy4wpDBTz5wQlUw==
 
 semver@~5.3.0:
   version "5.3.0"
@@ -19596,7 +19620,7 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
-    
+
 "vets-json-schema@https://github.com/department-of-veterans-affairs/vets-json-schema.git#7a747b65016e57625341c64f3eee5b1d19ad2605":
   version "20.1.0"
   resolved "https://github.com/department-of-veterans-affairs/vets-json-schema.git#7a747b65016e57625341c64f3eee5b1d19ad2605"
