@@ -2719,12 +2719,12 @@ anymatch@~3.1.1:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-append-query@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/append-query/-/append-query-2.0.1.tgz"
-  integrity sha1-2ZallUw3RrAM7Xs2+h7i8CNkICU=
+append-query@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/append-query/-/append-query-2.1.1.tgz#0682e8c3ad6f2fa01e78153c4c73a6283d2a88f6"
+  integrity sha512-adm0E8o1o7ay+HbkWvGIpNNeciLB/rxJ0heThHuzSSVq5zcdQ5/ZubFnUoY0imFmk6gZVghSpwoubLVtwi9EHQ==
   dependencies:
-    extend "^1.3.0"
+    extend "^3.0.2"
 
 append-transform@^0.4.0:
   version "0.4.0"
@@ -7697,15 +7697,10 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
     assign-symbols "^1.0.0"
     is-extendable "^1.0.1"
 
-extend@3, extend@^3.0.0, extend@~3.0.0, extend@~3.0.2:
+extend@3, extend@^3.0.0, extend@^3.0.2, extend@~3.0.0, extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
-
-extend@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.npmjs.org/extend/-/extend-1.3.0.tgz"
-  integrity sha1-0VFvsP9WJNLr+RI+odrFoZlABPg=
 
 external-editor@^1.1.0:
   version "1.1.1"
@@ -19596,7 +19591,7 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
-    
+
 "vets-json-schema@https://github.com/department-of-veterans-affairs/vets-json-schema.git#7a747b65016e57625341c64f3eee5b1d19ad2605":
   version "20.1.0"
   resolved "https://github.com/department-of-veterans-affairs/vets-json-schema.git#7a747b65016e57625341c64f3eee5b1d19ad2605"
