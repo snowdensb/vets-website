@@ -146,7 +146,7 @@
     "@testing-library/react": "^11.1.2",
     "@testing-library/user-event": "^12.2.2",
     "ajv": "^6.12.2",
-    "append-query": "2.0.1",
+    "append-query": "2.1.1",
     "ascii-table": "^0.0.9",
     "autoprefixer": "^9.5.1",
     "axe-core": "^4.1.3",
