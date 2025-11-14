@@ -313,7 +313,7 @@
     "history-v4": "npm:history@4.9.0",
     "ics-js": "^0.10.2",
     "js-cookie": "^2.2.1",
-    "js-yaml": "^3.14.0",
+    "js-yaml": "^4.0.0",
     "jsesc": "^3.0.2",
     "jsonschema": "^1.1.1",
     "leaflet": "^1.6.0",
@@ -370,7 +370,7 @@
   },
   "resolutions": {
     "**/lodash": "4.17.19",
-    "**/js-yaml": "^3.13.1",
+    "**/js-yaml": "^4.0.0",
     "**/jpeg-js": "^0.4.0",
     "**/dot-prop": "^5.1.1",
     "**/http-proxy": "^1.18.1",
